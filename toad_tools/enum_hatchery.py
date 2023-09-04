@@ -9,6 +9,11 @@ class ChecksumType(Enum):
     SHA1 = "sha1"
 
 
+class OperationType(Enum):
+    MOVE = "move"
+    COPY = "copy"
+
+
 class FileType(Enum):
     # Text-based file types
     JSON = "json"
