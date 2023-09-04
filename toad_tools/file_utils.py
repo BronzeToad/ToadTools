@@ -18,7 +18,6 @@ from filelock import FileLock, Timeout
 from toad_tools.enum_hatchery import ChecksumType, FileType, OperationType, SerializationType
 
 
-# TODO: add function to take filepath and check if it exists
 # =========================================================================== #
 
 def force_extension(
