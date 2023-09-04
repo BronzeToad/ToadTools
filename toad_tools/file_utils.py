@@ -1,13 +1,18 @@
+import codecs
+import hashlib
 import json
 import os
+import re
 import time
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Optional, Union
 import json
 import xml.etree.ElementTree as ET
+
+import chardet
 from PIL import Image
-from toad_tools.enum_hatchery import FileType
+from toad_tools.enum_hatchery import FileType, ChecksumType
 
 # TODO: add function to take filepath and check if it exists
 # =========================================================================== #
@@ -578,5 +583,259 @@ def validate_file_type(
 
     else:
         return "File type not supported for validation."
+
+
+def concatenate_files(
+    folder: str,
+    filenames: List[str],
+    file_type: FileType,
+    output_filename: str,
+    delimiter: Optional[str] = None
+) -> None:
+    """
+    Concatenate multiple files of the same type into a single file.
+
+    :param folder: The folder where the files are located.
+    :type folder: str
+    :param filenames: List of filenames to concatenate.
+    :type filenames: List[str]
+    :param file_type: The type of the files, specified as an enum (FileType).
+    :type file_type: FileType
+    :param output_filename: The name of the output file.
+    :type output_filename: str
+    :param delimiter: Optional delimiter to insert between file contents.
+    :type delimiter: str, optional
+
+    :raises FileNotFoundError: If any of the specified files are not found in the given folder.
+    :raises RuntimeError: If an error occurs during file reading or writing.
+
+    :Example:
+
+    >>> concatenate_files("/path/to/folder", ["file1.txt", "file2.txt"], FileType.TXT, "output.txt", "\\n")
+    # This will concatenate "file1.txt" and "file2.txt" with a newline delimiter and save it as "output.txt"
+    """
+
+    contents = []
+
+    for filename in filenames:
+        try:
+            file_content = get_file(folder, filename, file_type)
+            if not isinstance(file_content, str):
+                raise RuntimeError(f"File {filename} content is not text-based.")
+            contents.append(file_content)
+        except FileNotFoundError as e:
+            raise FileNotFoundError(f"File {filename} not found. {str(e)}")
+
+    # add delimiters if provided
+    combined_content = delimiter.join(contents) if delimiter else ''.join(contents)
+
+    output_filepath = Path(folder) / force_extension(output_filename, file_type.name.lower())
+
+    # save the concatenated content to the output file
+    with open(output_filepath, 'w') as file:
+        file.write(combined_content)
+
+
+def count_lines(
+    folder: str,
+    filename: str,
+    file_type: FileType
+) -> Union[int, str]:
+    """
+    Count the number of lines in a file.
+
+    This function takes a folder path, filename, and FileType enum to read the file.
+    It then returns the number of lines for text-based files.
+
+    :param folder: The folder where the file is located.
+    :type folder: str
+    :param filename: The name of the file.
+    :type filename: str
+    :param file_type: The type of the file, specified as an enum (FileType).
+    :type file_type: FileType
+    :return: The number of lines for text-based files or a message for binary files.
+    :rtype: Union[int, str]
+
+    :raises FileNotFoundError: If the specified file is not found in the given folder.
+
+    :Example:
+
+    >>> count_lines("/path/to/folder", "file.txt", FileType.TXT)
+    42  # Assuming the TXT file has 42 lines
+
+    >>> count_lines("/path/to/folder", "image.jpg", FileType.JPG)
+    "Line count is not applicable for binary files."
+    """
+
+    # get the file content using the `get_file` function
+    file_content = get_file(folder, filename, file_type)
+
+    # handle text-based and binary files differently
+    if isinstance(file_content, str):
+        # count the number of lines for text-based files
+        return len(file_content.splitlines())
+    else:
+        # for binary files, line counting is not applicable
+        return "Line count is not applicable for binary files."
+
+
+def convert_file_encoding(
+    folder: str,
+    filename: str,
+    file_type: FileType,
+    target_encoding: str,
+    source_encoding: Optional[str] = None
+) -> None:
+    """
+    Convert the encoding of a file.
+
+    :param folder: The folder where the file is located.
+    :param filename: The name of the file.
+    :param file_type: The type of the file, specified as an enum (FileType).
+    :param target_encoding: The target encoding to convert the file to.
+    :param source_encoding: The source encoding of the file. If None, the function will attempt to detect it.
+    :return: None
+
+    :Example:
+
+    >>> convert_file_encoding("/path/to/folder", "file", FileType.TXT, "utf-8", "latin1")
+    # This will convert a file from 'latin1' to 'utf-8' encoding.
+    """
+
+    # use get_file to read the file content
+    file_content = get_file(folder, filename, file_type)
+
+    # if source_encoding is not provided, use chardet to detect it
+    if source_encoding is None:
+        detection_result = chardet.detect(file_content.encode())
+        source_encoding = detection_result['encoding']
+
+    # convert the file content to the target encoding
+    converted_content = file_content.encode(source_encoding).decode(target_encoding)
+
+    # write the converted content back to the file
+    output_filename = force_extension(filename, file_type.name.lower())
+    output_filepath = f'{folder}/{output_filename}'
+    with codecs.open(output_filepath, 'w', encoding=target_encoding) as file:
+        file.write(converted_content)
+
+
+def search_text_in_file(
+    folder: str,
+    filename: str,
+    query: str,
+    is_regex: bool = False,
+    case_sensitive: bool = False,
+    file_type: Optional[FileType] = None
+) -> List[str]:
+    """
+    Search for a text string or regular expression pattern in a file.
+
+    This function takes a folder path, filename, and query string or regular expression to perform
+    the search. The function returns a list of lines where the query is found.
+
+    :param folder: The folder where the file is located.
+    :type folder: str
+    :param filename: The name of the file.
+    :type filename: str
+    :param query: The text or regular expression pattern to search for.
+    :type query: str
+    :param is_regex: Whether the query is a regular expression pattern.
+    :type is_regex: bool, default is False
+    :param case_sensitive: Whether the search is case-sensitive.
+    :type case_sensitive: bool, default is False
+    :param file_type: Optional file type to force the extension.
+    :type file_type: FileType, optional
+    :return: A list of lines where the query is found.
+    :rtype: List[str]
+
+    :Example:
+
+    >>> search_text_in_file("/path/to/folder", "file.txt", "search_text")
+    ["Line containing search_text", ...]
+
+    >>> search_text_in_file("/path/to/folder", "file.txt", "regex_pattern", is_regex=True)
+    ["Line matching regex_pattern", ...]
+    """
+
+    # if file_type is provided, standardize the file extension
+    if file_type:
+        filename = force_extension(filename, file_type.name.lower())
+
+    filepath = Path(folder) / filename
+
+    # check if the file exists
+    if not filepath.is_file():
+        raise FileNotFoundError(f"{filename} not found in {folder}.")
+
+    found_lines = []
+
+    with open(filepath, 'r') as file:
+        for line in file:
+            # determine the search function: regex search or string search
+            search_func = re.search if is_regex else lambda q, l: q in l
+
+            # determine the target line: original or lowercase
+            target_line = line if case_sensitive else line.lower()
+
+            # determine the query: original or lowercase
+            target_query = query if case_sensitive else query.lower()
+
+            if search_func(target_query, target_line):
+                found_lines.append(line.strip())
+
+    return found_lines
+
+
+def calculate_checksum(
+    folder: str,
+    filename: str,
+    checksum_type: ChecksumType = ChecksumType.SHA256,
+    buffer_size: int = 65536
+) -> Optional[str]:
+    """
+    Calculate the checksum of a file.
+
+    This function calculates the checksum of a file located in a specified folder.
+    The checksum algorithm can be specified (default is SHA-256).
+
+    :param folder: The folder where the file is located.
+    :type folder: str
+    :param filename: The name of the file.
+    :type filename: str
+    :param checksum_type: The type of checksum to calculate, specified as an enum (ChecksumType).
+    :type checksum_type: ChecksumType
+    :param buffer_size: The size of the buffer to use when reading the file. Increase for large files.
+    :type buffer_size: int
+    :return: The calculated checksum as a hexadecimal string.
+    :rtype: str, optional
+
+    :raises FileNotFoundError: If the specified file is not found in the given folder.
+
+    :Example:
+
+    >>> calculate_checksum("/path/to/folder", "file.txt")
+    "af2379a30923abf..."
+    """
+
+    # standardize the file extension (if needed, based on your use case)
+    # standardized_filename = force_extension(filename, ...)
+    filepath = Path(folder) / filename
+
+    # check if the file exists
+    if not filepath.is_file():
+        raise FileNotFoundError(f"{filename} not found in {folder}.")
+
+    # initialize the hash object
+    hash_obj = hashlib.new(checksum_type.value)
+
+    # read the file and update hash object
+    with open(filepath, 'rb') as f:
+        while chunk := f.read(buffer_size):
+            hash_obj.update(chunk)
+
+    return hash_obj.hexdigest()
+
+
 
 
