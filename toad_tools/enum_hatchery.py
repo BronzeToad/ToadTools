@@ -3,6 +3,12 @@ from enum import Enum
 
 # =========================================================================== #
 
+class ChecksumType(Enum):
+    SHA256 = "sha256"
+    MD5 = "md5"
+    SHA1 = "sha1"
+
+
 class FileType(Enum):
     # Text-based file types
     JSON = "json"
