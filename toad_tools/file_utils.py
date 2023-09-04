@@ -3,16 +3,17 @@ import hashlib
 import json
 import os
 import re
+import shutil
 import time
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Optional, Union
+from typing import Callable, Dict, List, Optional, Union
 import json
 import xml.etree.ElementTree as ET
 
 import chardet
 from PIL import Image
-from toad_tools.enum_hatchery import FileType, ChecksumType
+from toad_tools.enum_hatchery import FileType, ChecksumType, OperationType
 
 # TODO: add function to take filepath and check if it exists
 # =========================================================================== #
@@ -837,5 +838,107 @@ def calculate_checksum(
     return hash_obj.hexdigest()
 
 
+def bulk_rename(
+    folder: str,
+    rename_func: Callable[[str], str]
+) -> None:
+    """
+    Rename multiple files in a directory according to a specific pattern or rule.
+
+    This function takes a folder path and a renaming function as arguments.
+    The renaming function itself takes a filename as an argument and returns the new name for that file.
+
+    :param folder: The folder where the files to be renamed are located.
+    :type folder: str
+    :param rename_func: A function that takes the old filename (without extension)
+                        and returns the new filename (also without extension).
+    :type rename_func: Callable[[str], str]
+
+    :Example:
+
+    >>> def add_prefix(filename: str) -> str:
+    ...     return f"prefix_{filename}"
+    ...
+    >>> bulk_rename("/path/to/folder", add_prefix)
+
+    """
+    folder_path = Path(folder)
+
+    if not folder_path.is_dir():
+        raise NotADirectoryError(f"{folder} is not a directory.")
+
+    for file_path in folder_path.iterdir():
+        if file_path.is_file():
+            old_name = file_path.stem
+            old_extension = file_path.suffix
+            new_name = rename_func(old_name)
+            new_file_path = folder_path / f"{new_name}{old_extension}"
+
+            if new_file_path.exists():
+                raise FileExistsError(f"File {new_file_path} already exists.")
+
+            os.rename(file_path, new_file_path)
+
+
+def bulk_move_copy(
+    src_folder: str,
+    dest_folder: str,
+    filenames: List[str],
+    operation: OperationType,
+    standardize_extensions: Optional[str] = None
+) -> None:
+    """
+    Move or copy multiple files from a source folder to a destination folder.
+
+    :param src_folder: The source folder from which to move or copy files.
+    :type src_folder: str
+    :param dest_folder: The destination folder to which to move or copy files.
+    :type dest_folder: str
+    :param filenames: A list of filenames to move or copy.
+    :type filenames: List[str]
+    :param operation: The type of operation to perform: 'move' or 'copy'.
+    :type operation: OperationType
+    :param standardize_extensions: Optional extension to standardize all files. If None, no standardization is performed.
+    :type standardize_extensions: str, optional
+
+    :raises FileNotFoundError: If any file in the list does not exist in the source folder.
+    :raises FileExistsError: If a file with the same name exists in the destination folder.
+
+    :Example:
+
+    >>> bulk_move_copy("/path/to/src", "/path/to/dest", ["file1.txt", "file2.txt"], OperationType.MOVE)
+    # Moves file1.txt and file2.txt from /path/to/src to /path/to/dest
+
+    >>> bulk_move_copy("/path/to/src", "/path/to/dest", ["file1.txt", "file2.txt"], OperationType.COPY, "TXT")
+    # Copies and standardizes the extensions of file1.txt and file2.txt from /path/to/src to /path/to/dest
+    """
+
+    src_folder_path = Path(src_folder)
+    dest_folder_path = Path(dest_folder)
+
+    # create destination folder if it doesn't exist
+    dest_folder_path.mkdir(parents=True, exist_ok=True)
+
+    for filename in filenames:
+        src_filepath = src_folder_path / filename
+        dest_filepath = dest_folder_path / filename
+
+        # standardize file extension if needed
+        if standardize_extensions:
+            dest_filepath = dest_folder_path / force_extension(filename, standardize_extensions)
+
+        # check if the source file exists
+        if not src_filepath.is_file():
+            raise FileNotFoundError(f"{filename} not found in {src_folder}.")
+
+        # check if the destination file already exists
+        if dest_filepath.is_file():
+            raise FileExistsError(f"A file with the name {dest_filepath.name} already exists in {dest_folder}.")
+
+        # perform the move or copy operation
+        if operation == OperationType.MOVE:
+            shutil.move(str(src_filepath), str(dest_filepath))
+        elif operation == OperationType.COPY:
+            shutil.copy(str(src_filepath), str(dest_filepath))
 
 
