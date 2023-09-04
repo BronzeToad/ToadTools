@@ -14,6 +14,11 @@ class OperationType(Enum):
     COPY = "copy"
 
 
+class SerializationType(Enum):
+    JSON = "json"
+    PICKLE = "pkl"
+
+
 class FileType(Enum):
     # Text-based file types
     JSON = "json"
