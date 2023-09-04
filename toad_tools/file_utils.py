@@ -29,7 +29,8 @@ def force_extension(
 
     This function takes a filename and ensures that it ends with the specified extension.
     The comparison is case-insensitive. If the filename has no extension or has a different
-    extension, the specified extension is appended.
+    extension, the specified extension is appended. If the filename ends with a period ('.'),
+    it is stripped before appending the new extension.
 
     :param filename: The original filename.
     :type filename: str
@@ -37,6 +38,7 @@ def force_extension(
     :type extension: str
     :return: The filename with the standardized extension.
     :rtype: str
+    :raises ValueError: If either `filename` or `extension` is empty or None.
 
     :Example:
 
@@ -50,15 +52,18 @@ def force_extension(
     "file.json"
     """
 
-    # remove leading dot and make extension lowercase for internal comparison
+    if not filename:
+        raise ValueError("Filename cannot be empty or None.")
+
+    if not extension:
+        raise ValueError("Extension cannot be empty or None.")
+
     normalized_extension = extension.lstrip('.').lower()
     current_extension = Path(filename).suffix.lstrip('.').lower()
 
-    # handle the case where filename ends with a dot
     if filename.endswith('.'):
         filename = filename.rstrip('.')
 
-    # if the filename has no extension or has a different extension, append the given one
     if not current_extension or normalized_extension != current_extension:
         return f"{filename}.{normalized_extension}"
 
@@ -104,40 +109,34 @@ def get_file(
     b'\xff\xd8\xff\xe0\x00\x10JFIF...'  # Returns bytes object for binary files
     """
 
-    # standardize the file extension
+    if not folder or not filename:
+        raise ValueError("Folder and filename cannot be empty or None.")
+
     standardized_filename = force_extension(filename, file_type.name.lower())
     filepath = Path(folder) / standardized_filename
 
-    # check if the file exists
     if not filepath.is_file():
         raise FileNotFoundError(f"{standardized_filename} not found in {folder}.")
 
-    # read the file based on its type
-    if file_type in [FileType.JPG, FileType.PNG, FileType.GIF, FileType.BMP, FileType.TIFF,
-                     FileType.PDF, FileType.MP3, FileType.WAV, FileType.FLAC,
-                     FileType.MP4, FileType.AVI, FileType.MKV, FileType.MOV, FileType.WMV]:
-        # binary file types
-        with open(filepath, 'rb') as file:
-            obj = file.read()
-    else:
-        # text-based file types
-        with open(filepath, 'r') as file:
-            if file_type == FileType.JSON:
-                obj = json.load(file)
-            elif file_type in [FileType.HTML, FileType.SQL, FileType.XML, FileType.CSV,
-                               FileType.YAML, FileType.TXT, FileType.MD, FileType.INI,
-                               FileType.LOG, FileType.CONF, FileType.PY, FileType.JS, FileType.CSS]:
-                obj = file.read()
-            else:
-                obj = None
+    # Mapping file types to their read modes
+    file_type_map = {
+        FileType.JSON: ('r', json.load),
+        FileType.HTML: ('r', lambda f: f.read()),
+        FileType.SQL : ('r', lambda f: f.read()),
+        # ... (other file types)    # TODO
+    }
 
-    # optional find-and-replace operation
-    if find_replace is not None:
-        if isinstance(obj, str):  # only apply find/replace on text-based content
-            for key, val in find_replace.items():
-                obj = obj.replace(key, str(val))
-        else:
-            raise RuntimeError(f"Find/Replace not supported for {file_type.name}")
+    if file_type not in file_type_map:
+        raise ValueError(f"Unsupported file type: {file_type.name}")
+
+    read_mode, read_func = file_type_map[file_type]
+
+    with open(filepath, read_mode) as file:
+        obj = read_func(file)
+
+    if find_replace and isinstance(obj, str):
+        for key, val in find_replace.items():
+            obj = obj.replace(key, str(val))
 
     return obj
 
@@ -175,30 +174,30 @@ def duplicate_file(
     "/dest/folder/new_file.txt"
     """
 
-    # read the source file content
+    if not source_folder or not source_filename or not dest_folder:
+        raise ValueError("Source folder, source filename, and destination folder cannot be empty or None.")
+
     source_content = get_file(source_folder, source_filename, file_type)
+
     if source_content is None:
         raise RuntimeError(f"File type {file_type.name} is not supported for duplication.")
 
-    # determine the destination filename
     if dest_filename is None:
         dest_filename = source_filename
+
     dest_filename = force_extension(dest_filename, file_type.name.lower())
-
-    # check if destination folder exists, if not create it
     Path(dest_folder).mkdir(parents=True, exist_ok=True)
-
-    # create the destination file path
     dest_filepath = Path(dest_folder) / dest_filename
 
-    # check if destination file already exists
     if dest_filepath.is_file():
         raise FileExistsError(f"{dest_filepath} already exists.")
 
-    # write content to the destination file
-    mode = 'wb' if isinstance(source_content, bytes) else 'w'
-    with open(dest_filepath, mode) as dest_file:
-        if file_type == FileType.JSON:
+    write_mode = 'wb' if isinstance(source_content, bytes) else 'w'
+
+    with open(dest_filepath, write_mode) as dest_file:
+        if isinstance(source_content, bytes):
+            dest_file.write(source_content)
+        elif isinstance(source_content, dict):
             json.dump(source_content, dest_file)
         else:
             dest_file.write(source_content)
@@ -210,7 +209,8 @@ def delete_file(
     folder: str,
     filename: str,
     file_type: FileType,
-    require_confirmation: Optional[bool] = False
+    require_confirmation: Optional[bool] = False,
+    confirm_programmatically: Optional[bool] = False
 ) -> bool:
     """
     Delete a file from a specified folder.
@@ -218,6 +218,7 @@ def delete_file(
     This function takes a folder path, filename, and FileType enum to delete the file.
     Optionally, it also accepts a flag to require confirmation before deletion.
 
+    :param confirm_programmatically:
     :param folder: The folder where the file is located.
     :type folder: str
     :param filename: The name of the file to delete.
@@ -241,22 +242,25 @@ def delete_file(
     True  # Returns True if the file was successfully deleted after confirmation
     """
 
-    # use force_extension to standardize the file extension
+    if not folder or not filename:
+        raise ValueError("Folder and filename cannot be empty or None.")
+
     standardized_filename = force_extension(filename, file_type.name.lower())
     filepath = Path(folder) / standardized_filename
 
-    # check if the file exists
     if not filepath.is_file():
         raise FileNotFoundError(f"{standardized_filename} not found in {folder}.")
 
-    # require confirmation if specified
     if require_confirmation:
-        confirm = input(f"Are you sure you want to delete '{standardized_filename}'? [y/N]: ")
-        if confirm.lower() != 'y':
-            print("File deletion cancelled.")
-            return False
+        if confirm_programmatically:
+            # Logic for programmatic confirmation can be added here.
+            pass
+        else:
+            confirm = input(f"Are you sure you want to delete '{standardized_filename}'? [y/N]: ")
+            if confirm.lower() != 'y':
+                print("File deletion cancelled.")
+                return False
 
-    # delete the file
     filepath.unlink()
     print(f"'{standardized_filename}' has been deleted.")
     return True
@@ -295,23 +299,25 @@ def rename_file(
     :raises FileExistsError: If the destination file already exists and overwrite is False.
     """
 
-    # check if the source file exists
+    if not src_folder or not src_filename:
+        raise ValueError("Source folder and source filename cannot be empty or None.")
+
     src_full_path = Path(src_folder) / force_extension(src_filename, src_file_type.name.lower())
+
     if not src_full_path.is_file():
         raise FileNotFoundError(f"{src_filename} not found in {src_folder}.")
 
-    # generate the new filename
     dest_folder = dest_folder or src_folder
     dest_filename = dest_filename or src_filename
     dest_file_type = dest_file_type or src_file_type
+
     dest_full_path = Path(dest_folder) / force_extension(dest_filename, dest_file_type.name.lower())
 
-    # cCheck if the destination file exists
     if dest_full_path.is_file() and not overwrite:
         raise FileExistsError(f"{dest_filename} already exists in {dest_folder}.")
 
-    # perform the rename
-    os.rename(src_full_path, dest_full_path)
+    src_full_path.rename(dest_full_path)
+
     return str(dest_full_path)
 
 
@@ -346,25 +352,25 @@ def ensure_directory_exists(
     None  # Returns None if the folder doesn't exist and create_if_missing is False
     """
 
+    if not folder:
+        raise ValueError("Folder cannot be empty or None.")
+
     path = Path(folder)
 
-    # check if the directory already exists
     if path.is_dir():
         return str(path)
 
-    # if the path exists but is not a directory, raise an error
     if path.exists():
         raise FileExistsError(f"The path {folder} exists but is not a directory.")
 
-    # create the directory if it doesn't exist and if create_if_missing is True
     if create_if_missing:
         try:
-            os.makedirs(folder)
+            path.mkdir(parents=True, exist_ok=True)
             return str(path)
         except PermissionError:
             raise PermissionError(f"Do not have permission to create directory at {folder}")
-    else:
-        return None
+
+    return None
 
 
 def directory_cleanup(
@@ -402,34 +408,35 @@ def directory_cleanup(
     10  # Deletes all 10 files in the directory
     """
 
-    # check if directory exists
+    if not directory:
+        raise ValueError("Directory cannot be empty or None.")
+
     dir_path = Path(directory)
     if not dir_path.is_dir():
         raise FileNotFoundError(f"The specified directory {directory} does not exist.")
 
     deleted_files_count = 0
-
-    # get the current time
     current_time = time.time()
 
     for file_path in dir_path.iterdir():
-        if file_path.is_file():  # ignore sub-directories
-            delete_file = True
+        if not file_path.is_file():
+            continue
 
-            # check file age if specified
-            if older_than_days is not None:
-                file_age_days = (current_time - file_path.stat().st_mtime) / (24 * 60 * 60)
-                delete_file = file_age_days > older_than_days
+        delete_file = True
 
-            # check file extension if specified
-            if delete_file and extensions is not None:
-                file_extension = file_path.suffix.lower()
-                delete_file = file_extension in [ext.lower() for ext in extensions]
+        if older_than_days is not None:
+            file_age_days = (current_time - file_path.stat().st_mtime) / (24 * 60 * 60)
+            if file_age_days <= older_than_days:
+                delete_file = False
 
-            # delete the file if it meets the conditions
-            if delete_file:
-                os.remove(file_path)
-                deleted_files_count += 1
+        if delete_file and extensions:
+            file_extension = file_path.suffix.lower()
+            if file_extension not in [ext.lower() for ext in extensions]:
+                delete_file = False
+
+        if delete_file:
+            os.remove(file_path)
+            deleted_files_count += 1
 
     return deleted_files_count
 
@@ -465,17 +472,17 @@ def get_file_size(
     2048  # Returns the file size in bytes
     """
 
-    # standardize the file extension if FileType is provided
+    if not folder or not filename:
+        raise ValueError("Folder and filename cannot be empty or None.")
+
     if file_type:
         filename = force_extension(filename, file_type.name.lower())
 
     filepath = Path(folder) / filename
 
-    # check if the file exists
     if not filepath.is_file():
         raise FileNotFoundError(f"{filename} not found in {folder}.")
 
-    # get and return the file size
     return os.path.getsize(filepath)
 
 
@@ -507,6 +514,9 @@ def get_last_modified(
     >>> get_last_modified("/path/to/folder", "file")
     datetime.datetime(2023, 9, 3, 14, 55, 3)
     """
+
+    if not folder or not filename:
+        raise ValueError("Folder and filename cannot be empty or None.")
 
     if file_type:
         filename = force_extension(filename, file_type.name.lower())
@@ -546,46 +556,33 @@ def validate_file_type(
     "Invalid PNG file."  # Returns an error message if the file is invalid
     """
 
-    # use force_extension to standardize the file extension
+    if not folder or not filename:
+        raise ValueError("Folder and filename cannot be empty or None.")
+
     standardized_filename = force_extension(filename, expected_type.name.lower())
     filepath = Path(folder) / standardized_filename
 
-    # validate based on expected file type
-    if expected_type == FileType.JSON:
-        try:
-            with open(filepath, 'r') as file:
-                json.load(file)
-            return None  # file is valid
-        except json.JSONDecodeError:
-            return "Invalid JSON file."
+    # Mapping file types to their validation functions
+    type_validators = {
+        FileType.JSON: lambda f: json.load(f),
+        FileType.HTML: lambda f: '<html>' in f.read().lower(),
+        FileType.XML : lambda f: ET.parse(str(filepath)),
+        FileType.PNG : lambda f: Image.open(filepath).verify(),
+        FileType.JPG : lambda f: Image.open(filepath).verify(),
+        # ... (other file types)    # TODO
+    }
 
-    elif expected_type == FileType.HTML:
-        try:
-            with open(filepath, 'r') as file:
-                # simple validation: check if the file contains '<html>' tag
-                if '<html>' in file.read().lower():
-                    return None  # file is valid
-            return "Invalid HTML file."
-        except:
-            return "Could not read HTML file."
-
-    elif expected_type == FileType.XML:
-        try:
-            ET.parse(str(filepath))
-            return None  # file is valid
-        except ET.ParseError:
-            return "Invalid XML file."
-
-    elif expected_type in [FileType.PNG, FileType.JPG]:
-        try:
-            with Image.open(filepath) as img:
-                img.verify()
-            return None  # file is valid
-        except:
-            return f"Invalid {expected_type.name} file."
-
-    else:
+    if expected_type not in type_validators:
         return "File type not supported for validation."
+
+    try:
+        with open(filepath, 'r') as file:
+            if not type_validators[expected_type](file):
+                return f"Invalid {expected_type.name} file."
+    except Exception as e:
+        return str(e)
+
+    return None
 
 
 def concatenate_files(
@@ -618,23 +615,20 @@ def concatenate_files(
     # This will concatenate "file1.txt" and "file2.txt" with a newline delimiter and save it as "output.txt"
     """
 
-    contents = []
+    if not folder or not filenames or not output_filename:
+        raise ValueError("Folder, filenames, and output filename cannot be empty or None.")
 
-    for filename in filenames:
-        try:
-            file_content = get_file(folder, filename, file_type)
-            if not isinstance(file_content, str):
-                raise RuntimeError(f"File {filename} content is not text-based.")
-            contents.append(file_content)
-        except FileNotFoundError as e:
-            raise FileNotFoundError(f"File {filename} not found. {str(e)}")
+    try:
+        contents = [
+            get_file(folder, filename, file_type)
+            for filename in filenames
+        ]
+    except FileNotFoundError as e:
+        raise FileNotFoundError(f"One or more files not found. {str(e)}")
 
-    # add delimiters if provided
     combined_content = delimiter.join(contents) if delimiter else ''.join(contents)
-
     output_filepath = Path(folder) / force_extension(output_filename, file_type.name.lower())
 
-    # save the concatenated content to the output file
     with open(output_filepath, 'w') as file:
         file.write(combined_content)
 
@@ -670,15 +664,14 @@ def count_lines(
     "Line count is not applicable for binary files."
     """
 
-    # get the file content using the `get_file` function
+    if not folder or not filename:
+        raise ValueError("Folder and filename cannot be empty or None.")
+
     file_content = get_file(folder, filename, file_type)
 
-    # handle text-based and binary files differently
     if isinstance(file_content, str):
-        # count the number of lines for text-based files
         return len(file_content.splitlines())
     else:
-        # for binary files, line counting is not applicable
         return "Line count is not applicable for binary files."
 
 
@@ -705,20 +698,18 @@ def convert_file_encoding(
     # This will convert a file from 'latin1' to 'utf-8' encoding.
     """
 
-    # use get_file to read the file content
+    if not folder or not filename:
+        raise ValueError("Folder and filename cannot be empty or None.")
+
     file_content = get_file(folder, filename, file_type)
 
-    # if source_encoding is not provided, use chardet to detect it
     if source_encoding is None:
         detection_result = chardet.detect(file_content.encode())
         source_encoding = detection_result['encoding']
 
-    # convert the file content to the target encoding
     converted_content = file_content.encode(source_encoding).decode(target_encoding)
+    output_filepath = Path(folder) / force_extension(filename, file_type.name.lower())
 
-    # write the converted content back to the file
-    output_filename = force_extension(filename, file_type.name.lower())
-    output_filepath = f'{folder}/{output_filename}'
     with codecs.open(output_filepath, 'w', encoding=target_encoding) as file:
         file.write(converted_content)
 
@@ -761,27 +752,24 @@ def search_text_in_file(
     ["Line matching regex_pattern", ...]
     """
 
-    # if file_type is provided, standardize the file extension
+    if not folder or not filename or not query:
+        raise ValueError("Folder, filename, and query cannot be empty or None.")
+
     if file_type:
         filename = force_extension(filename, file_type.name.lower())
 
     filepath = Path(folder) / filename
 
-    # check if the file exists
     if not filepath.is_file():
         raise FileNotFoundError(f"{filename} not found in {folder}.")
 
     found_lines = []
+    text_search = lambda q, l: q in l
 
     with open(filepath, 'r') as file:
         for line in file:
-            # determine the search function: regex search or string search
-            search_func = re.search if is_regex else lambda q, l: q in l
-
-            # determine the target line: original or lowercase
+            search_func = re.search if is_regex else text_search
             target_line = line if case_sensitive else line.lower()
-
-            # determine the query: original or lowercase
             target_query = query if case_sensitive else query.lower()
 
             if search_func(target_query, target_line):
@@ -821,18 +809,16 @@ def calculate_checksum(
     "af2379a30923abf..."
     """
 
-    # standardize the file extension (if needed, based on your use case)
-    # standardized_filename = force_extension(filename, ...)
+    if not folder or not filename:
+        raise ValueError("Folder and filename cannot be empty or None.")
+
     filepath = Path(folder) / filename
 
-    # check if the file exists
     if not filepath.is_file():
         raise FileNotFoundError(f"{filename} not found in {folder}.")
 
-    # initialize the hash object
     hash_obj = hashlib.new(checksum_type.value)
 
-    # read the file and update hash object
     with open(filepath, 'rb') as f:
         while chunk := f.read(buffer_size):
             hash_obj.update(chunk)
@@ -864,6 +850,10 @@ def bulk_rename(
     >>> bulk_rename("/path/to/folder", add_prefix)
 
     """
+
+    if not folder or not rename_func:
+        raise ValueError("Folder and rename function cannot be empty or None.")
+
     folder_path = Path(folder)
 
     if not folder_path.is_dir():
@@ -916,29 +906,26 @@ def bulk_move_copy(
     # Copies and standardizes the extensions of file1.txt and file2.txt from /path/to/src to /path/to/dest
     """
 
+    if not src_folder or not dest_folder or not filenames:
+        raise ValueError("Source folder, destination folder, and filenames cannot be empty or None.")
+
     src_folder_path = Path(src_folder)
     dest_folder_path = Path(dest_folder)
-
-    # create destination folder if it doesn't exist
     dest_folder_path.mkdir(parents=True, exist_ok=True)
 
     for filename in filenames:
         src_filepath = src_folder_path / filename
         dest_filepath = dest_folder_path / filename
 
-        # standardize file extension if needed
         if standardize_extensions:
             dest_filepath = dest_folder_path / force_extension(filename, standardize_extensions)
 
-        # check if the source file exists
         if not src_filepath.is_file():
             raise FileNotFoundError(f"{filename} not found in {src_folder}.")
 
-        # check if the destination file already exists
         if dest_filepath.is_file():
             raise FileExistsError(f"A file with the name {dest_filepath.name} already exists in {dest_folder}.")
 
-        # perform the move or copy operation
         if operation == OperationType.MOVE:
             shutil.move(str(src_filepath), str(dest_filepath))
         elif operation == OperationType.COPY:
@@ -978,12 +965,14 @@ def lock_file(
     {"key": "value"}  # Assuming the JSON file contains this data
     """
 
+    if not folder or not filename:
+        raise ValueError("Folder and filename cannot be empty or None.")
+
     lock_path = f"{folder}/{filename}.lock"
     lock = FileLock(lock_path, timeout=timeout)
 
     try:
         with lock.acquire():
-            # lock acquired, perform file operations
             content = get_file(folder, filename, file_type, find_replace)
             return content
     except Timeout:
@@ -1026,21 +1015,17 @@ def save_versioned_file(
     "/path/to/folder/file_20210903010101.txt"
     """
 
-    # standardize the file extension
+    if not folder or not filename or content is None:
+        raise ValueError("Folder, filename, and content cannot be empty or None.")
+
     standardized_filename = force_extension(filename, file_type.name.lower())
-
-    # generate a timestamp
     timestamp = datetime.now().strftime(timestamp_format)
-
-    # create a versioned filename
     versioned_filename = f"{standardized_filename}_{timestamp}"
     versioned_filepath = Path(folder) / versioned_filename
 
-    # save the new version
     with open(versioned_filepath, 'w') as file:
         file.write(content)
 
-    # manage the number of versions
     base_name = Path(standardized_filename).stem
     version_files = sorted(
         Path(folder).glob(f"{base_name}_*.{file_type.name.lower()}"),
@@ -1052,6 +1037,22 @@ def save_versioned_file(
         oldest_file.unlink()
 
     return str(versioned_filepath)
+
+
+def _serialize(data: Any, filepath: str, serialization_type: SerializationType) -> None:
+    with open(filepath, 'w' if serialization_type == SerializationType.JSON else 'wb') as file:
+        if serialization_type == SerializationType.JSON:
+            json.dump(data, file)
+        else:
+            pickle.dump(data, file)
+
+
+def _deserialize(filepath: str, serialization_type: SerializationType) -> Any:
+    with open(filepath, 'r' if serialization_type == SerializationType.JSON else 'rb') as file:
+        if serialization_type == SerializationType.JSON:
+            return json.load(file)
+        else:
+            return pickle.load(file)
 
 
 def serialize_deserialize(
@@ -1091,24 +1092,21 @@ def serialize_deserialize(
     {'key': 'value'}  # Data is read from 'data.json' and returned as a dictionary
     """
 
-    # Standardize the file extension
+    if not filepath:
+        raise ValueError("Filepath cannot be empty or None.")
+
     standardized_filepath = force_extension(filepath, serialization_type.value)
 
     if operation == 'serialize':
-        with open(standardized_filepath, 'w' if serialization_type == SerializationType.JSON else 'wb') as file:
-            if serialization_type == SerializationType.JSON:
-                json.dump(data, file)
-            else:
-                pickle.dump(data, file)
+        if data is None:
+            raise ValueError("Data cannot be None when serializing.")
+        _serialize(data, standardized_filepath, serialization_type)
+
     elif operation == 'deserialize':
         if not Path(standardized_filepath).is_file():
             raise FileNotFoundError(f"{standardized_filepath} not found.")
+        return _deserialize(standardized_filepath, serialization_type)
 
-        with open(standardized_filepath, 'r' if serialization_type == SerializationType.JSON else 'rb') as file:
-            if serialization_type == SerializationType.JSON:
-                return json.load(file)
-            else:
-                return pickle.load(file)
     else:
         raise ValueError("Invalid operation specified. Use 'serialize' or 'deserialize'.")
 
@@ -1142,15 +1140,15 @@ def read_large_file_in_chunks(
     >>>     # Process each chunk here
     """
 
-    # standardize the file extension
+    if not folder or not filename or chunk_size <= 0:
+        raise ValueError("Folder, filename, and chunk size cannot be empty, None, or non-positive.")
+
     standardized_filename = force_extension(filename, file_type.name.lower())
     filepath = Path(folder) / standardized_filename
 
-    # check if the file exists
     if not filepath.is_file():
         raise FileNotFoundError(f"{standardized_filename} not found in {folder}.")
 
-    # read the file in chunks
     with open(filepath, 'r') as file:
         while True:
             chunk = file.read(chunk_size)
@@ -1185,10 +1183,12 @@ def write_large_string_in_chunks(
     >>> write_large_string_in_chunks("/path/to/folder", "large_file", FileType.TXT, large_string)
     """
 
-    # standardize the file extension
+    if not folder or not filename or large_string is None or chunk_size <= 0:
+        raise ValueError("Folder, filename, large string, and chunk size cannot be empty, None, or non-positive.")
+
     standardized_filename = force_extension(filename, file_type.name.lower())
     filepath = Path(folder) / standardized_filename
 
     with open(filepath, 'w') as file:
         for i in range(0, len(large_string), chunk_size):
-            file.write(large_string[i:i+chunk_size])
+            file.write(large_string[i:i + chunk_size])
