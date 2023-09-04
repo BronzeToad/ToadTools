@@ -19,6 +19,11 @@ class SerializationType(Enum):
     PICKLE = "pkl"
 
 
+class FileCheckType(Enum):
+    EXISTS = 1
+    NOT_FOUND = 2
+
+
 class FileType(Enum):
     # Text-based file types
     JSON = "json"
