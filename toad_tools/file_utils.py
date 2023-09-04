@@ -2,18 +2,21 @@ import codecs
 import hashlib
 import json
 import os
+import pickle
 import re
 import shutil
 import time
+import xml.etree.ElementTree as ET
 from datetime import datetime
 from pathlib import Path
-from typing import Callable, Dict, List, Optional, Union
-import json
-import xml.etree.ElementTree as ET
+from typing import Any, Callable, Dict, Generator, List, Optional, Union
 
 import chardet
 from PIL import Image
-from toad_tools.enum_hatchery import FileType, ChecksumType, OperationType
+from filelock import FileLock, Timeout
+
+from toad_tools.enum_hatchery import ChecksumType, FileType, OperationType, SerializationType
+
 
 # TODO: add function to take filepath and check if it exists
 # =========================================================================== #
@@ -898,7 +901,8 @@ def bulk_move_copy(
     :type filenames: List[str]
     :param operation: The type of operation to perform: 'move' or 'copy'.
     :type operation: OperationType
-    :param standardize_extensions: Optional extension to standardize all files. If None, no standardization is performed.
+    :param standardize_extensions: Optional extension to standardize all files.
+        If None, no standardization is performed.
     :type standardize_extensions: str, optional
 
     :raises FileNotFoundError: If any file in the list does not exist in the source folder.
@@ -942,3 +946,250 @@ def bulk_move_copy(
             shutil.copy(str(src_filepath), str(dest_filepath))
 
 
+def lock_file(
+    folder: str,
+    filename: str,
+    file_type: FileType,
+    timeout: int = 10,
+    find_replace: Optional[Dict[str, str]] = None
+) -> Union[Dict, str, bytes]:
+    """
+    Acquire a lock on a file and read its contents.
+
+    :param folder: The folder where the file is located.
+    :type folder: str
+    :param filename: The name of the file.
+    :type filename: str
+    :param file_type: The type of the file, specified as an enum (FileType).
+    :type file_type: FileType
+    :param timeout: The maximum time to wait for the lock, in seconds.
+    :type timeout: int, optional
+    :param find_replace: Optional dictionary containing find-replace pairs for text-based files.
+    :type find_replace: dict, optional
+    :return: The file contents. For text-based files, this could be a string or a dictionary (for JSON).
+             For binary files, this will be a bytes object.
+    :rtype: Union[dict, str, bytes]
+    :raises Timeout: If the lock cannot be acquired within the specified timeout.
+    :raises FileNotFoundError: If the specified file is not found in the given folder.
+    :raises RuntimeError: If find_replace is used on a binary file type.
+
+    :Example:
+
+    >>> lock_file("/path/to/folder", "file", FileType.JSON)
+    {"key": "value"}  # Assuming the JSON file contains this data
+    """
+
+    lock_path = f"{folder}/{filename}.lock"
+    lock = FileLock(lock_path, timeout=timeout)
+
+    try:
+        with lock.acquire():
+            # lock acquired, perform file operations
+            content = get_file(folder, filename, file_type, find_replace)
+            return content
+    except Timeout:
+        raise Timeout(f"Could not acquire lock on {filename} within {timeout} seconds.")
+
+
+def save_versioned_file(
+    folder: str,
+    filename: str,
+    file_type: FileType,
+    content: str,
+    timestamp_format: str = "%Y%m%d%H%M%S",
+    max_versions: int = 5
+) -> str:
+    """
+    Save a versioned copy of a file.
+
+    This function saves a new version of a file in the specified folder.
+    It appends a timestamp to the filename to distinguish between different versions.
+    It also manages the number of versions to keep, deleting the oldest if it exceeds `max_versions`.
+
+    :param folder: The folder where the file is located.
+    :type folder: str
+    :param filename: The name of the file.
+    :type filename: str
+    :param file_type: The type of the file, specified as an enum (FileType).
+    :type file_type: FileType
+    :param content: The content to save in the new version.
+    :type content: str
+    :param timestamp_format: The format of the timestamp to append to the filename.
+    :type timestamp_format: str, optional
+    :param max_versions: The maximum number of versions to keep.
+    :type max_versions: int, optional
+    :return: The path of the saved versioned file.
+    :rtype: str
+
+    :Example:
+
+    >>> save_versioned_file("/path/to/folder", "file", FileType.TXT, "new content")
+    "/path/to/folder/file_20210903010101.txt"
+    """
+
+    # standardize the file extension
+    standardized_filename = force_extension(filename, file_type.name.lower())
+
+    # generate a timestamp
+    timestamp = datetime.now().strftime(timestamp_format)
+
+    # create a versioned filename
+    versioned_filename = f"{standardized_filename}_{timestamp}"
+    versioned_filepath = Path(folder) / versioned_filename
+
+    # save the new version
+    with open(versioned_filepath, 'w') as file:
+        file.write(content)
+
+    # manage the number of versions
+    base_name = Path(standardized_filename).stem
+    version_files = sorted(
+        Path(folder).glob(f"{base_name}_*.{file_type.name.lower()}"),
+        key=os.path.getmtime
+    )
+
+    while len(version_files) > max_versions:
+        oldest_file = version_files.pop(0)
+        oldest_file.unlink()
+
+    return str(versioned_filepath)
+
+
+def serialize_deserialize(
+    operation: str,
+    filepath: str,
+    data: Optional[Any] = None,
+    serialization_type: SerializationType = SerializationType.JSON
+) -> Any:
+    """
+    Serialize or deserialize data to/from a file.
+
+    This function can either write a Python object to a file (serialize) or read
+    data back into a Python object (deserialize), depending on the specified
+    operation. The serialization format can be either JSON or Pickle.
+
+    :param operation: The operation to perform: 'serialize' or 'deserialize'.
+    :type operation: str
+    :param filepath: The path where the serialized file will be saved or read from.
+    :type filepath: str
+    :param data: The data to serialize. Required if operation is 'serialize'.
+    :type data: Any, optional
+    :param serialization_type: The serialization format: JSON or Pickle (default is JSON).
+    :type serialization_type: SerializationType
+
+    :return: If operation is 'deserialize', returns the deserialized data.
+    :rtype: Any
+
+    :raises ValueError: If an invalid operation is specified.
+    :raises FileNotFoundError: If a file is not found during deserialization.
+
+    :Example:
+
+    >>> serialize_deserialize('serialize', 'data.json', {'key': 'value'}, SerializationType.JSON)
+    None  # File 'data.json' is created with the serialized data
+
+    >>> serialize_deserialize('deserialize', 'data.json', serialization_type=SerializationType.JSON)
+    {'key': 'value'}  # Data is read from 'data.json' and returned as a dictionary
+    """
+
+    # Standardize the file extension
+    standardized_filepath = force_extension(filepath, serialization_type.value)
+
+    if operation == 'serialize':
+        with open(standardized_filepath, 'w' if serialization_type == SerializationType.JSON else 'wb') as file:
+            if serialization_type == SerializationType.JSON:
+                json.dump(data, file)
+            else:
+                pickle.dump(data, file)
+    elif operation == 'deserialize':
+        if not Path(standardized_filepath).is_file():
+            raise FileNotFoundError(f"{standardized_filepath} not found.")
+
+        with open(standardized_filepath, 'r' if serialization_type == SerializationType.JSON else 'rb') as file:
+            if serialization_type == SerializationType.JSON:
+                return json.load(file)
+            else:
+                return pickle.load(file)
+    else:
+        raise ValueError("Invalid operation specified. Use 'serialize' or 'deserialize'.")
+
+
+def read_large_file_in_chunks(
+    folder: str,
+    filename: str,
+    file_type: FileType,
+    chunk_size: int = 1024  # 1KB by default
+) -> Generator[str, None, None]:
+    """
+    Reads a large text file in chunks.
+
+    This function takes a folder path, filename, and FileType enum to read the file in chunks.
+    It yields each chunk for further processing.
+
+    :param folder: The folder where the file is located.
+    :type folder: str
+    :param filename: The name of the file.
+    :type filename: str
+    :param file_type: The type of the file, specified as an enum (FileType).
+    :type file_type: FileType
+    :param chunk_size: The size of each chunk in bytes. Defaults to 1024 bytes (1 KB).
+    :type chunk_size: int, optional
+    :return: Yields each chunk as a string.
+    :rtype: Generator[str, None, None]
+
+    :Example:
+
+    >>> for chunk in read_large_file_in_chunks("/path/to/folder", "large_file", FileType.TXT):
+    >>>     # Process each chunk here
+    """
+
+    # standardize the file extension
+    standardized_filename = force_extension(filename, file_type.name.lower())
+    filepath = Path(folder) / standardized_filename
+
+    # check if the file exists
+    if not filepath.is_file():
+        raise FileNotFoundError(f"{standardized_filename} not found in {folder}.")
+
+    # read the file in chunks
+    with open(filepath, 'r') as file:
+        while True:
+            chunk = file.read(chunk_size)
+            if not chunk:
+                break
+            yield chunk
+
+
+def write_large_string_in_chunks(
+    folder: str,
+    filename: str,
+    file_type: FileType,
+    large_string: str,
+    chunk_size: int = 1024  # 1KB by default
+) -> None:
+    """
+    Writes a large string to a text file in chunks.
+
+    :param folder: The folder where the file will be saved.
+    :type folder: str
+    :param filename: The name of the file.
+    :type filename: str
+    :param file_type: The type of the file, specified as an enum (FileType).
+    :type file_type: FileType
+    :param large_string: The large string to write.
+    :type large_string: str
+    :param chunk_size: The size of each chunk in bytes. Defaults to 1024 bytes (1 KB).
+    :type chunk_size: int, optional
+
+    :Example:
+
+    >>> write_large_string_in_chunks("/path/to/folder", "large_file", FileType.TXT, large_string)
+    """
+
+    # standardize the file extension
+    standardized_filename = force_extension(filename, file_type.name.lower())
+    filepath = Path(folder) / standardized_filename
+
+    with open(filepath, 'w') as file:
+        for i in range(0, len(large_string), chunk_size):
+            file.write(large_string[i:i+chunk_size])
