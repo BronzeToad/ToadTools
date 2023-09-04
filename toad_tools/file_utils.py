@@ -25,31 +25,24 @@ def force_extension(
     extension: str
 ) -> str:
     """
-    Standardizes the file extension of a given filename.
+    Ensures that a filename has the specified extension.
 
-    This function takes a filename and ensures that it ends with the specified extension.
-    The comparison is case-insensitive. If the filename has no extension or has a different
-    extension, the specified extension is appended. If the filename ends with a period ('.'),
-    it is stripped before appending the new extension.
+    This function takes a filename and an extension, then returns the filename
+    with the given extension. If the filename already has the correct
+    extension, it is returned as-is. Otherwise, the correct extension is added.
+    Extensions are case-insensitive and leading dots are optional.
 
-    :param filename: The original filename.
-    :type filename: str
-    :param extension: The extension to force on the filename.
-    :type extension: str
-    :return: The filename with the standardized extension.
-    :rtype: str
-    :raises ValueError: If either `filename` or `extension` is empty or None.
+    Args:
+        filename (str): The name of the file, which can include an existing
+            extension.
+        extension (str): The desired file extension, with or without a leading
+            dot.
 
-    :Example:
+    Returns:
+        str: The filename with the specified extension.
 
-    >>> force_extension("file", "json")
-    "file.json"
-
-    >>> force_extension("file.JSON", "json")
-    "file.JSON"
-
-    >>> force_extension("file.", "json")
-    "file.json"
+    Raises:
+        ValueError: If either the filename or extension is empty or None.
     """
 
     if not filename:
@@ -77,36 +70,31 @@ def get_file(
     find_replace: Optional[Dict[str, str]] = None
 ) -> Union[Dict, str, bytes]:
     """
-    Retrieve and optionally modify the contents of a file.
+    Reads a file from a specified folder.
 
-    This function takes a folder path, filename, and FileType enum to read the file.
-    Optionally, it also accepts a find-replace dictionary to modify the contents of text-based files.
+    This function reads a file based on its type and location. Additionally,
+    it can perform find-replace operations on the file content if specified.
 
-    :param folder: The folder where the file is located.
-    :type folder: str
-    :param filename: The name of the file.
-    :type filename: str
-    :param file_type: The type of the file, specified as an enum (FileType).
-    :type file_type: FileType
-    :param find_replace: Optional dictionary containing find-replace pairs for text-based files.
-    :type find_replace: dict, optional
-    :return: The file contents. For text-based files, this could be a string or a dictionary (for JSON).
-             For binary files, this will be a bytes object.
-    :rtype: Union[dict, str, bytes]
+    Args:
+        folder (str): The path to the folder containing the file.
+        filename (str): The name of the file to read.
+        file_type (FileType): Enum representing the file type.
+        find_replace (Optional[Dict[str, str]]): A dictionary for find-replace
+            operations to be performed on the file's content. Keys are the
+            substrings to find, and values are the substrings to replace them
+            with. Defaults to None.
 
-    :raises FileNotFoundError: If the specified file is not found in the given folder.
-    :raises RuntimeError: If find_replace is used on a binary file type.
+    Returns:
+        Union[Dict, str, bytes]: The content of the file. The type of the
+            returned object depends on the file type:
+            - For JSON files, a dictionary is returned.
+            - For HTML and SQL files, a string is returned.
+            - For other file types, bytes may be returned.
 
-    :Example:
-
-    >>> get_file("/path/to/folder", "file", FileType.JSON)
-    {"key": "value"}  # Assuming the JSON file contains this data
-
-    >>> get_file("/path/to/folder", "file", FileType.TXT, {"old": "new"})
-    "new text"  # Assuming the TXT file contains "old text"
-
-    >>> get_file("/path/to/folder", "image", FileType.JPG)
-    b'\xff\xd8\xff\xe0\x00\x10JFIF...'  # Returns bytes object for binary files
+    Raises:
+        ValueError: If the folder or filename is empty or None.
+        FileNotFoundError: If the specified file is not found.
+        ValueError: If an unsupported file type is specified.
     """
 
     if not folder or not filename:
@@ -118,7 +106,7 @@ def get_file(
     if not filepath.is_file():
         raise FileNotFoundError(f"{standardized_filename} not found in {folder}.")
 
-    # Mapping file types to their read modes
+    # mapping file types to their read modes
     file_type_map = {
         FileType.JSON: ('r', json.load),
         FileType.HTML: ('r', lambda f: f.read()),
@@ -149,29 +137,28 @@ def duplicate_file(
     dest_filename: Optional[str] = None
 ) -> str:
     """
-    Duplicates a file from a source folder to a destination folder with an optional new filename.
+    Duplicates a file from a source folder to a destination folder.
 
-    :param source_folder: The folder where the source file is located.
-    :type source_folder: str
-    :param source_filename: The name of the source file.
-    :type source_filename: str
-    :param dest_folder: The folder where the destination file will be located.
-    :type dest_folder: str
-    :param dest_filename: The name of the destination file. If None, source_filename is used.
-    :type dest_filename: str, optional
-    :param file_type: The type of the file, specified as an enum (FileType).
-    :type file_type: FileType
-    :return: The path of the duplicated file.
-    :rtype: str
+    This function duplicates a file by reading its content from the source
+    folder and writing it to the destination folder. Optionally, the
+    destination filename can be specified.
 
-    :raises FileNotFoundError: If the source file is not found.
-    :raises FileExistsError: If the destination file already exists.
-    :raises RuntimeError: If the file type is not supported for duplication.
+    Args:
+        source_folder (str): The path to the folder containing the source file.
+        source_filename (str): The name of the source file.
+        dest_folder (str): The path to the destination folder.
+        file_type (FileType): Enum representing the file type.
+        dest_filename (Optional[str]): The name for the destination file.
+            Defaults to `source_filename`.
 
-    :Example:
+    Returns:
+        str: The full path to the duplicated file as a string.
 
-    >>> duplicate_file("/source/folder", "file.txt", "/dest/folder", "new_file.txt", FileType.TXT)
-    "/dest/folder/new_file.txt"
+    Raises:
+        ValueError: If the source folder, source filename, or destination
+            folder is empty or None.
+        RuntimeError: If the file type is not supported for duplication.
+        FileExistsError: If the destination file already exists.
     """
 
     if not source_folder or not source_filename or not dest_folder:
@@ -213,33 +200,27 @@ def delete_file(
     confirm_programmatically: Optional[bool] = False
 ) -> bool:
     """
-    Delete a file from a specified folder.
+    Deletes a file with optional confirmation steps.
 
-    This function takes a folder path, filename, and FileType enum to delete the file.
-    Optionally, it also accepts a flag to require confirmation before deletion.
+    This function deletes a specified file and can also require a manual or
+    programmatic confirmation before proceeding with the deletion.
 
-    :param confirm_programmatically:
-    :param folder: The folder where the file is located.
-    :type folder: str
-    :param filename: The name of the file to delete.
-    :type filename: str
-    :param file_type: The type of the file, specified as an enum (FileType).
-    :type file_type: FileType
-    :param require_confirmation: Flag indicating whether to require confirmation before deleting.
-    :type require_confirmation: bool, optional
-    :return: True if the file was successfully deleted, False otherwise.
-    :rtype: bool
+    Args:
+        folder (str): The path to the folder containing the file to delete.
+        filename (str): The name of the file to delete.
+        file_type (FileType): Enum representing the file type.
+        require_confirmation (Optional[bool]): Whether to require a
+            confirmation before deletion. Defaults to False.
+        confirm_programmatically (Optional[bool]): Whether to confirm the
+            deletion programmatically. If True, logic for programmatic
+            confirmation should be added. Defaults to False.
 
-    :raises FileNotFoundError: If the specified file is not found in the given folder.
+    Returns:
+        bool: True if the file was deleted, False otherwise.
 
-    :Example:
-
-    >>> delete_file("/path/to/folder", "file", FileType.JSON)
-    True  # Returns True if the file was successfully deleted
-
-    >>> delete_file("/path/to/folder", "file", FileType.JSON, True)
-    Are you sure you want to delete 'file.json'? [y/N]: y
-    True  # Returns True if the file was successfully deleted after confirmation
+    Raises:
+        ValueError: If either the folder or filename is empty or None.
+        FileNotFoundError: If the specified file is not found in the folder.
     """
 
     if not folder or not filename:
@@ -253,7 +234,7 @@ def delete_file(
 
     if require_confirmation:
         if confirm_programmatically:
-            # Logic for programmatic confirmation can be added here.
+            # Logic for programmatic confirmation can be added here.    # TODO
             pass
         else:
             confirm = input(f"Are you sure you want to delete '{standardized_filename}'? [y/N]: ")
@@ -276,27 +257,36 @@ def rename_file(
     overwrite: bool = False
 ) -> Union[str, None]:
     """
-    Rename a file and optionally move it to a different folder.
+    Renames a file, with optional move, name change, and overwrite features.
 
-    :param src_folder: The source folder where the file is currently located.
-    :type src_folder: str
-    :param src_filename: The source filename to be renamed.
-    :type src_filename: str
-    :param src_file_type: The type of the source file, specified as an enum (FileType).
-    :type src_file_type: FileType
-    :param dest_folder: The destination folder where the file should be moved, optional.
-    :type dest_folder: str, optional
-    :param dest_filename: The new filename, optional.
-    :type dest_filename: str, optional
-    :param dest_file_type: The type of the destination file, specified as an enum (FileType), optional.
-    :type dest_file_type: FileType, optional
-    :param overwrite: Whether to overwrite the destination file if it exists.
-    :type overwrite: bool
-    :return: The new filename with its full path if the rename was successful, otherwise None.
-    :rtype: Union[str, None]
+    This function allows renaming a file and additionally offers the ability
+    to move it to a different folder, change its name, or change its file
+    type. If the destination file exists, it can optionally be overwritten.
 
-    :raises FileNotFoundError: If the source file doesn't exist.
-    :raises FileExistsError: If the destination file already exists and overwrite is False.
+    Args:
+        src_folder (str): The path to the folder containing the source file.
+        src_filename (str): The name of the source file.
+        src_file_type (FileType): Enum representing the source file type.
+        dest_folder (Optional[str]): The path to the destination folder.
+            Defaults to `src_folder`.
+        dest_filename (Optional[str]): The name for the destination file.
+            Defaults to `src_filename`.
+        dest_file_type (Optional[FileType]): Enum representing the destination
+            file type. Defaults to `src_file_type`.
+        overwrite (bool): Whether to overwrite the destination file if it
+            exists. Defaults to False.
+
+    Returns:
+        Union[str, None]: The full path to the renamed file as a string, or
+            None if the operation failed.
+
+    Raises:
+        ValueError: If either the source folder or source filename is empty
+            or None.
+        FileNotFoundError: If the source file is not found in the source
+            folder.
+        FileExistsError: If the destination file already exists and `overwrite`
+            is False.
     """
 
     if not src_folder or not src_filename:
@@ -326,30 +316,26 @@ def ensure_directory_exists(
     create_if_missing: bool = True
 ) -> Optional[str]:
     """
-    Ensures that a directory exists at the given path.
+    Ensures a directory exists at the specified folder path.
 
-    This function checks if a directory exists at the specified folder path.
-    If the directory does not exist and create_if_missing is True, it will create the directory.
+    This function checks if a directory exists at the given path. If the
+    directory does not exist, it can optionally create it. If the path exists
+    but is not a directory, an error is raised.
 
-    :param folder: The path where the directory should exist.
-    :type folder: str
-    :param create_if_missing: Whether to create the directory if it doesn't exist.
-                              Default is True.
-    :type create_if_missing: bool, optional
-    :return: The path of the directory if it exists or was successfully created,
-             None otherwise.
-    :rtype: Optional[str]
+    Args:
+        folder (str): The path to the directory to ensure exists.
+        create_if_missing (bool): Whether to create the directory if it does
+            not exist. Defaults to True.
 
-    :raises FileExistsError: If the path exists but is not a directory.
-    :raises PermissionError: If the function does not have permission to create the directory.
+    Returns:
+        Optional[str]: The path to the directory as a string if it exists or
+            was created, or None if `create_if_missing` is False and the
+            directory does not exist.
 
-    :Example:
-
-    >>> ensure_directory_exists("/path/to/folder")
-    "/path/to/folder"  # Returns the folder path if it exists or was successfully created
-
-    >>> ensure_directory_exists("/path/to/folder", create_if_missing=False)
-    None  # Returns None if the folder doesn't exist and create_if_missing is False
+    Raises:
+        ValueError: If the folder path is empty or None.
+        FileExistsError: If the path exists but is not a directory.
+        PermissionError: If there's no permission to create the directory.
     """
 
     if not folder:
@@ -378,35 +364,7 @@ def directory_cleanup(
     older_than_days: Optional[int] = None,
     extensions: Optional[List[str]] = None
 ) -> int:
-    """
-    Cleans up a directory by deleting files based on conditions.
 
-    Deletes files in the given directory that meet the conditions specified by `older_than_days`
-    and `extensions`. If no conditions are specified, all files in the directory will be deleted.
-
-    :param directory: The directory to clean up.
-    :type directory: str
-    :param older_than_days: Optional; delete files older than this many days.
-    :type older_than_days: int, optional
-    :param extensions: Optional; list of file extensions to consider for deletion.
-    :type extensions: List[str], optional
-    :return: The number of files deleted.
-    :rtype: int
-
-    :raises FileNotFoundError: If the specified directory does not exist.
-    :raises PermissionError: If the function lacks permission to delete any file.
-
-    :Example:
-
-    >>> directory_cleanup("/path/to/folder", older_than_days=30)
-    5  # Deletes 5 files older than 30 days
-
-    >>> directory_cleanup("/path/to/folder", extensions=[".txt", ".log"])
-    3  # Deletes 3 files with .txt or .log extensions
-
-    >>> directory_cleanup("/path/to/folder")
-    10  # Deletes all 10 files in the directory
-    """
 
     if not directory:
         raise ValueError("Directory cannot be empty or None.")
@@ -446,31 +404,7 @@ def get_file_size(
     filename: str,
     file_type: Optional[FileType] = None
 ) -> int:
-    """
-    Retrieve the size of a file in bytes.
 
-    This function takes a folder path and a filename to find the file and return its size.
-    Optionally, it also accepts a FileType enum to standardize the file extension.
-
-    :param folder: The folder where the file is located.
-    :type folder: str
-    :param filename: The name of the file.
-    :type filename: str
-    :param file_type: The type of the file, specified as an enum (FileType). Optional.
-    :type file_type: FileType, optional
-    :return: The file size in bytes.
-    :rtype: int
-
-    :raises FileNotFoundError: If the specified file is not found in the given folder.
-
-    :Example:
-
-    >>> get_file_size("/path/to/folder", "file", FileType.JSON)
-    2048  # Returns the file size in bytes
-
-    >>> get_file_size("/path/to/folder", "file.json")
-    2048  # Returns the file size in bytes
-    """
 
     if not folder or not filename:
         raise ValueError("Folder and filename cannot be empty or None.")
@@ -491,29 +425,7 @@ def get_last_modified(
     filename: str,
     file_type: Optional[FileType] = None
 ) -> Union[datetime, None]:
-    """
-    Get the last modified timestamp of a file.
 
-    This function takes a folder path, filename, and optionally a FileType enum.
-    It returns the last modified timestamp of the specified file.
-
-    :param folder: The folder where the file is located.
-    :type folder: str
-    :param filename: The name of the file.
-    :type filename: str
-    :param file_type: Optional type of the file, specified as an enum (FileType).
-    :type file_type: FileType, optional
-    :return: The last modified timestamp of the file as a datetime object, or None if the file doesn't exist.
-    :rtype: Union[datetime, None]
-
-    :Example:
-
-    >>> get_last_modified("/path/to/folder", "file", FileType.JSON)
-    datetime.datetime(2023, 9, 3, 14, 55, 3)
-
-    >>> get_last_modified("/path/to/folder", "file")
-    datetime.datetime(2023, 9, 3, 14, 55, 3)
-    """
 
     if not folder or not filename:
         raise ValueError("Folder and filename cannot be empty or None.")
@@ -535,26 +447,7 @@ def validate_file_type(
     filename: str,
     expected_type: FileType
 ) -> Optional[str]:
-    """
-    Validate that a file's contents match its expected type.
 
-    :param folder: The folder where the file is located.
-    :type folder: str
-    :param filename: The name of the file.
-    :type filename: str
-    :param expected_type: The expected file type, specified as an enum (FileType).
-    :type expected_type: FileType
-    :return: A validation message or None if the file is valid.
-    :rtype: Optional[str]
-
-    :Example:
-
-    >>> validate_file_type("/path/to/folder", "file", FileType.JSON)
-    None  # Returns None if the file is valid
-
-    >>> validate_file_type("/path/to/folder", "file", FileType.PNG)
-    "Invalid PNG file."  # Returns an error message if the file is invalid
-    """
 
     if not folder or not filename:
         raise ValueError("Folder and filename cannot be empty or None.")
@@ -592,28 +485,7 @@ def concatenate_files(
     output_filename: str,
     delimiter: Optional[str] = None
 ) -> None:
-    """
-    Concatenate multiple files of the same type into a single file.
 
-    :param folder: The folder where the files are located.
-    :type folder: str
-    :param filenames: List of filenames to concatenate.
-    :type filenames: List[str]
-    :param file_type: The type of the files, specified as an enum (FileType).
-    :type file_type: FileType
-    :param output_filename: The name of the output file.
-    :type output_filename: str
-    :param delimiter: Optional delimiter to insert between file contents.
-    :type delimiter: str, optional
-
-    :raises FileNotFoundError: If any of the specified files are not found in the given folder.
-    :raises RuntimeError: If an error occurs during file reading or writing.
-
-    :Example:
-
-    >>> concatenate_files("/path/to/folder", ["file1.txt", "file2.txt"], FileType.TXT, "output.txt", "\\n")
-    # This will concatenate "file1.txt" and "file2.txt" with a newline delimiter and save it as "output.txt"
-    """
 
     if not folder or not filenames or not output_filename:
         raise ValueError("Folder, filenames, and output filename cannot be empty or None.")
@@ -638,31 +510,7 @@ def count_lines(
     filename: str,
     file_type: FileType
 ) -> Union[int, str]:
-    """
-    Count the number of lines in a file.
 
-    This function takes a folder path, filename, and FileType enum to read the file.
-    It then returns the number of lines for text-based files.
-
-    :param folder: The folder where the file is located.
-    :type folder: str
-    :param filename: The name of the file.
-    :type filename: str
-    :param file_type: The type of the file, specified as an enum (FileType).
-    :type file_type: FileType
-    :return: The number of lines for text-based files or a message for binary files.
-    :rtype: Union[int, str]
-
-    :raises FileNotFoundError: If the specified file is not found in the given folder.
-
-    :Example:
-
-    >>> count_lines("/path/to/folder", "file.txt", FileType.TXT)
-    42  # Assuming the TXT file has 42 lines
-
-    >>> count_lines("/path/to/folder", "image.jpg", FileType.JPG)
-    "Line count is not applicable for binary files."
-    """
 
     if not folder or not filename:
         raise ValueError("Folder and filename cannot be empty or None.")
@@ -682,21 +530,7 @@ def convert_file_encoding(
     target_encoding: str,
     source_encoding: Optional[str] = None
 ) -> None:
-    """
-    Convert the encoding of a file.
 
-    :param folder: The folder where the file is located.
-    :param filename: The name of the file.
-    :param file_type: The type of the file, specified as an enum (FileType).
-    :param target_encoding: The target encoding to convert the file to.
-    :param source_encoding: The source encoding of the file. If None, the function will attempt to detect it.
-    :return: None
-
-    :Example:
-
-    >>> convert_file_encoding("/path/to/folder", "file", FileType.TXT, "utf-8", "latin1")
-    # This will convert a file from 'latin1' to 'utf-8' encoding.
-    """
 
     if not folder or not filename:
         raise ValueError("Folder and filename cannot be empty or None.")
@@ -722,35 +556,7 @@ def search_text_in_file(
     case_sensitive: bool = False,
     file_type: Optional[FileType] = None
 ) -> List[str]:
-    """
-    Search for a text string or regular expression pattern in a file.
 
-    This function takes a folder path, filename, and query string or regular expression to perform
-    the search. The function returns a list of lines where the query is found.
-
-    :param folder: The folder where the file is located.
-    :type folder: str
-    :param filename: The name of the file.
-    :type filename: str
-    :param query: The text or regular expression pattern to search for.
-    :type query: str
-    :param is_regex: Whether the query is a regular expression pattern.
-    :type is_regex: bool, default is False
-    :param case_sensitive: Whether the search is case-sensitive.
-    :type case_sensitive: bool, default is False
-    :param file_type: Optional file type to force the extension.
-    :type file_type: FileType, optional
-    :return: A list of lines where the query is found.
-    :rtype: List[str]
-
-    :Example:
-
-    >>> search_text_in_file("/path/to/folder", "file.txt", "search_text")
-    ["Line containing search_text", ...]
-
-    >>> search_text_in_file("/path/to/folder", "file.txt", "regex_pattern", is_regex=True)
-    ["Line matching regex_pattern", ...]
-    """
 
     if not folder or not filename or not query:
         raise ValueError("Folder, filename, and query cannot be empty or None.")
@@ -784,30 +590,7 @@ def calculate_checksum(
     checksum_type: ChecksumType = ChecksumType.SHA256,
     buffer_size: int = 65536
 ) -> Optional[str]:
-    """
-    Calculate the checksum of a file.
 
-    This function calculates the checksum of a file located in a specified folder.
-    The checksum algorithm can be specified (default is SHA-256).
-
-    :param folder: The folder where the file is located.
-    :type folder: str
-    :param filename: The name of the file.
-    :type filename: str
-    :param checksum_type: The type of checksum to calculate, specified as an enum (ChecksumType).
-    :type checksum_type: ChecksumType
-    :param buffer_size: The size of the buffer to use when reading the file. Increase for large files.
-    :type buffer_size: int
-    :return: The calculated checksum as a hexadecimal string.
-    :rtype: str, optional
-
-    :raises FileNotFoundError: If the specified file is not found in the given folder.
-
-    :Example:
-
-    >>> calculate_checksum("/path/to/folder", "file.txt")
-    "af2379a30923abf..."
-    """
 
     if not folder or not filename:
         raise ValueError("Folder and filename cannot be empty or None.")
@@ -830,26 +613,7 @@ def bulk_rename(
     folder: str,
     rename_func: Callable[[str], str]
 ) -> None:
-    """
-    Rename multiple files in a directory according to a specific pattern or rule.
 
-    This function takes a folder path and a renaming function as arguments.
-    The renaming function itself takes a filename as an argument and returns the new name for that file.
-
-    :param folder: The folder where the files to be renamed are located.
-    :type folder: str
-    :param rename_func: A function that takes the old filename (without extension)
-                        and returns the new filename (also without extension).
-    :type rename_func: Callable[[str], str]
-
-    :Example:
-
-    >>> def add_prefix(filename: str) -> str:
-    ...     return f"prefix_{filename}"
-    ...
-    >>> bulk_rename("/path/to/folder", add_prefix)
-
-    """
 
     if not folder or not rename_func:
         raise ValueError("Folder and rename function cannot be empty or None.")
@@ -879,32 +643,7 @@ def bulk_move_copy(
     operation: OperationType,
     standardize_extensions: Optional[str] = None
 ) -> None:
-    """
-    Move or copy multiple files from a source folder to a destination folder.
 
-    :param src_folder: The source folder from which to move or copy files.
-    :type src_folder: str
-    :param dest_folder: The destination folder to which to move or copy files.
-    :type dest_folder: str
-    :param filenames: A list of filenames to move or copy.
-    :type filenames: List[str]
-    :param operation: The type of operation to perform: 'move' or 'copy'.
-    :type operation: OperationType
-    :param standardize_extensions: Optional extension to standardize all files.
-        If None, no standardization is performed.
-    :type standardize_extensions: str, optional
-
-    :raises FileNotFoundError: If any file in the list does not exist in the source folder.
-    :raises FileExistsError: If a file with the same name exists in the destination folder.
-
-    :Example:
-
-    >>> bulk_move_copy("/path/to/src", "/path/to/dest", ["file1.txt", "file2.txt"], OperationType.MOVE)
-    # Moves file1.txt and file2.txt from /path/to/src to /path/to/dest
-
-    >>> bulk_move_copy("/path/to/src", "/path/to/dest", ["file1.txt", "file2.txt"], OperationType.COPY, "TXT")
-    # Copies and standardizes the extensions of file1.txt and file2.txt from /path/to/src to /path/to/dest
-    """
 
     if not src_folder or not dest_folder or not filenames:
         raise ValueError("Source folder, destination folder, and filenames cannot be empty or None.")
@@ -939,31 +678,7 @@ def lock_file(
     timeout: int = 10,
     find_replace: Optional[Dict[str, str]] = None
 ) -> Union[Dict, str, bytes]:
-    """
-    Acquire a lock on a file and read its contents.
 
-    :param folder: The folder where the file is located.
-    :type folder: str
-    :param filename: The name of the file.
-    :type filename: str
-    :param file_type: The type of the file, specified as an enum (FileType).
-    :type file_type: FileType
-    :param timeout: The maximum time to wait for the lock, in seconds.
-    :type timeout: int, optional
-    :param find_replace: Optional dictionary containing find-replace pairs for text-based files.
-    :type find_replace: dict, optional
-    :return: The file contents. For text-based files, this could be a string or a dictionary (for JSON).
-             For binary files, this will be a bytes object.
-    :rtype: Union[dict, str, bytes]
-    :raises Timeout: If the lock cannot be acquired within the specified timeout.
-    :raises FileNotFoundError: If the specified file is not found in the given folder.
-    :raises RuntimeError: If find_replace is used on a binary file type.
-
-    :Example:
-
-    >>> lock_file("/path/to/folder", "file", FileType.JSON)
-    {"key": "value"}  # Assuming the JSON file contains this data
-    """
 
     if not folder or not filename:
         raise ValueError("Folder and filename cannot be empty or None.")
@@ -987,33 +702,7 @@ def save_versioned_file(
     timestamp_format: str = "%Y%m%d%H%M%S",
     max_versions: int = 5
 ) -> str:
-    """
-    Save a versioned copy of a file.
 
-    This function saves a new version of a file in the specified folder.
-    It appends a timestamp to the filename to distinguish between different versions.
-    It also manages the number of versions to keep, deleting the oldest if it exceeds `max_versions`.
-
-    :param folder: The folder where the file is located.
-    :type folder: str
-    :param filename: The name of the file.
-    :type filename: str
-    :param file_type: The type of the file, specified as an enum (FileType).
-    :type file_type: FileType
-    :param content: The content to save in the new version.
-    :type content: str
-    :param timestamp_format: The format of the timestamp to append to the filename.
-    :type timestamp_format: str, optional
-    :param max_versions: The maximum number of versions to keep.
-    :type max_versions: int, optional
-    :return: The path of the saved versioned file.
-    :rtype: str
-
-    :Example:
-
-    >>> save_versioned_file("/path/to/folder", "file", FileType.TXT, "new content")
-    "/path/to/folder/file_20210903010101.txt"
-    """
 
     if not folder or not filename or content is None:
         raise ValueError("Folder, filename, and content cannot be empty or None.")
@@ -1061,36 +750,7 @@ def serialize_deserialize(
     data: Optional[Any] = None,
     serialization_type: SerializationType = SerializationType.JSON
 ) -> Any:
-    """
-    Serialize or deserialize data to/from a file.
 
-    This function can either write a Python object to a file (serialize) or read
-    data back into a Python object (deserialize), depending on the specified
-    operation. The serialization format can be either JSON or Pickle.
-
-    :param operation: The operation to perform: 'serialize' or 'deserialize'.
-    :type operation: str
-    :param filepath: The path where the serialized file will be saved or read from.
-    :type filepath: str
-    :param data: The data to serialize. Required if operation is 'serialize'.
-    :type data: Any, optional
-    :param serialization_type: The serialization format: JSON or Pickle (default is JSON).
-    :type serialization_type: SerializationType
-
-    :return: If operation is 'deserialize', returns the deserialized data.
-    :rtype: Any
-
-    :raises ValueError: If an invalid operation is specified.
-    :raises FileNotFoundError: If a file is not found during deserialization.
-
-    :Example:
-
-    >>> serialize_deserialize('serialize', 'data.json', {'key': 'value'}, SerializationType.JSON)
-    None  # File 'data.json' is created with the serialized data
-
-    >>> serialize_deserialize('deserialize', 'data.json', serialization_type=SerializationType.JSON)
-    {'key': 'value'}  # Data is read from 'data.json' and returned as a dictionary
-    """
 
     if not filepath:
         raise ValueError("Filepath cannot be empty or None.")
@@ -1117,28 +777,7 @@ def read_large_file_in_chunks(
     file_type: FileType,
     chunk_size: int = 1024  # 1KB by default
 ) -> Generator[str, None, None]:
-    """
-    Reads a large text file in chunks.
 
-    This function takes a folder path, filename, and FileType enum to read the file in chunks.
-    It yields each chunk for further processing.
-
-    :param folder: The folder where the file is located.
-    :type folder: str
-    :param filename: The name of the file.
-    :type filename: str
-    :param file_type: The type of the file, specified as an enum (FileType).
-    :type file_type: FileType
-    :param chunk_size: The size of each chunk in bytes. Defaults to 1024 bytes (1 KB).
-    :type chunk_size: int, optional
-    :return: Yields each chunk as a string.
-    :rtype: Generator[str, None, None]
-
-    :Example:
-
-    >>> for chunk in read_large_file_in_chunks("/path/to/folder", "large_file", FileType.TXT):
-    >>>     # Process each chunk here
-    """
 
     if not folder or not filename or chunk_size <= 0:
         raise ValueError("Folder, filename, and chunk size cannot be empty, None, or non-positive.")
@@ -1164,24 +803,7 @@ def write_large_string_in_chunks(
     large_string: str,
     chunk_size: int = 1024  # 1KB by default
 ) -> None:
-    """
-    Writes a large string to a text file in chunks.
 
-    :param folder: The folder where the file will be saved.
-    :type folder: str
-    :param filename: The name of the file.
-    :type filename: str
-    :param file_type: The type of the file, specified as an enum (FileType).
-    :type file_type: FileType
-    :param large_string: The large string to write.
-    :type large_string: str
-    :param chunk_size: The size of each chunk in bytes. Defaults to 1024 bytes (1 KB).
-    :type chunk_size: int, optional
-
-    :Example:
-
-    >>> write_large_string_in_chunks("/path/to/folder", "large_file", FileType.TXT, large_string)
-    """
 
     if not folder or not filename or large_string is None or chunk_size <= 0:
         raise ValueError("Folder, filename, large string, and chunk size cannot be empty, None, or non-positive.")
