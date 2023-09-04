@@ -24,6 +24,25 @@ def check_filepath(
     filepath: Path,
     check_type: FileCheckType
 ) -> None:
+    """
+    Checks the existence or absence of a file and raises appropriate errors.
+
+    This function performs checks on a file path based on the specified check
+    type. It either checks if the file exists and raises a `FileExistsError`,
+    or checks if the file is not found and raises a `FileNotFoundError`.
+
+    Args:
+        filepath (Path): The full path to the file that needs to be checked.
+        check_type (FileCheckType): An enum indicating the type of check to
+            perform. Use `FileCheckType.EXISTS` to check if the file exists,
+            and `FileCheckType.NOT_FOUND` to check if the file is not found.
+
+    Raises:
+        FileExistsError: If the check type is `FileCheckType.EXISTS` and the
+            file exists.
+        FileNotFoundError: If the check type is `FileCheckType.NOT_FOUND` and
+            the file is not found.
+    """
     folder = os_path.dirname(filepath)
     filename = os_path.basename(filepath)
 
