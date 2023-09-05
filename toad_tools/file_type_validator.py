@@ -18,7 +18,7 @@ from toad_tools.file_utils import check_filepath
 
 # =========================================================================== #
 
-def validate_file_type(
+def file_type_validator(
     file_path: Union[str, Path],
     file_type: FileType
 ) -> bool:
