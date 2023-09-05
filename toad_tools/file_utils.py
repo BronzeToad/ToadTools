@@ -1,22 +1,22 @@
-from codecs import open as codecs_open
-from csv import reader as csv_reader
+import codecs
+import csv
+import hashlib
+import json
+import os
+import pickle
+import re
+import shutil
+import time
 from datetime import datetime
-from hashlib import new as hashlib_new
-from json import dump as json_dump, load as json_load
-from os import path as os_path, remove as os_remove, rename as os_rename
 from pathlib import Path
-from pickle import dump as pickle_dump, load as pickle_load
-from re import search as re_search
-from shutil import copy as shutil_copy, move as shutil_move
-from time import time as time_time
 from typing import Any, Callable, Dict, Generator, List, Optional, Tuple, Union
 
+import chardet
+import soundfile
+import yaml
 from PIL import Image
-from chardet import detect as chardet_detect
 from cv2 import VideoCapture
 from filelock import FileLock, Timeout
-from soundfile import read as soundfile_read
-from yaml import safe_load as yaml_safe_load
 
 from toad_tools.enum_hatchery import ChecksumType, FileCheckType, FileType, OperationType, SerializationType
 from toad_tools.file_type_validator import file_type_validator
@@ -47,19 +47,19 @@ def get_file_type_map() -> Dict[FileType, Tuple[str, Callable]]:
 
     def _read_audio(f):
         """Reads and returns an audio file as a soundfile object."""
-        return soundfile_read(f)
+        return soundfile.read(f)
 
     def _read_video(f):
         """Reads and returns a video file as a cv2 VideoCapture object."""
         return VideoCapture(f)
 
     return {
-        FileType.JSON: ('r', json_load),
+        FileType.JSON: ('r', json.load),
         FileType.HTML: ('r', _read_text_file),
         FileType.SQL : ('r', _read_text_file),
         FileType.XML : ('r', _read_text_file),
-        FileType.CSV: ('r', csv_reader),
-        FileType.YAML: ('r', yaml_safe_load),
+        FileType.CSV: ('r', csv.reader),
+        FileType.YAML: ('r', yaml.safe_load),
         FileType.TXT: ('r', _read_text_file),
         FileType.MD: ('r', _read_text_file),
         FileType.INI: ('r', _read_text_file),
@@ -108,8 +108,8 @@ def check_filepath(
         FileNotFoundError: If the check type is `FileCheckType.NOT_FOUND` and
             the file is not found.
     """
-    folder = os_path.dirname(filepath)
-    filename = os_path.basename(filepath)
+    folder = os.path.dirname(filepath)
+    filename = os.path.basename(filepath)
 
     if check_type == FileCheckType.EXISTS and filepath.is_file():
         raise FileExistsError(f"{filename} already exists in {folder}.")
@@ -271,7 +271,7 @@ def duplicate_file(
         if isinstance(source_content, bytes):
             dest_file.write(source_content)
         elif isinstance(source_content, dict):
-            json_dump(source_content, dest_file)
+            json.dump(source_content, dest_file)
         else:
             dest_file.write(source_content)
 
@@ -473,7 +473,7 @@ def directory_cleanup(
                                 f"does not exist.")
 
     deleted_files_count = 0
-    current_time = time_time()
+    current_time = time.time()
 
     for file_path in dir_path.iterdir():
         if not file_path.is_file():
@@ -493,7 +493,7 @@ def directory_cleanup(
                 delete_file = False
 
         if delete_file:
-            os_remove(file_path)
+            os.remove(file_path)
             deleted_files_count += 1
 
     return deleted_files_count
@@ -534,7 +534,7 @@ def get_file_size(
     filepath = Path(folder) / filename
     check_filepath(filepath, FileCheckType.NOT_FOUND)
 
-    return os_path.getsize(filepath)
+    return os.path.getsize(filepath)
 
 
 def get_last_modified(
@@ -574,7 +574,7 @@ def get_last_modified(
     if not filepath.is_file():
         return None
 
-    timestamp = os_path.getmtime(filepath)
+    timestamp = os.path.getmtime(filepath)
     return datetime.fromtimestamp(timestamp)
 
 
@@ -729,7 +729,7 @@ def convert_file_encoding(
     content = get_file(folder, filename, file_type)
 
     if source_encoding is None:
-        detection_result = chardet_detect(content.encode())
+        detection_result = chardet.detect(content.encode())
         source_encoding = detection_result['encoding']
 
     converted = content.encode(source_encoding).decode(target_encoding)
@@ -737,7 +737,7 @@ def convert_file_encoding(
         Path(folder) / force_extension(filename, file_type.name.lower())
     )
 
-    with codecs_open(output_filepath,
+    with codecs.open(output_filepath,
                      mode='w',
                      encoding=target_encoding) as file:
         file.write(converted)
@@ -792,7 +792,7 @@ def search_text_in_file(
 
     with open(filepath, 'r') as file:
         for line in file:
-            search_func = re_search if is_regex else text_search
+            search_func = re.search if is_regex else text_search
             target_line = line if case_sensitive else line.lower()
             target_query = query if case_sensitive else query.lower()
 
@@ -836,7 +836,7 @@ def calculate_checksum(
 
     filepath = Path(folder) / filename
     check_filepath(filepath, FileCheckType.NOT_FOUND)
-    hash_obj = hashlib_new(checksum_type.value)
+    hash_obj = hashlib.new(checksum_type.value)
 
     with open(filepath, 'rb') as f:
         while chunk := f.read(buffer_size):
@@ -887,7 +887,7 @@ def bulk_rename(
             if new_file_path.exists():
                 raise FileExistsError(f"File {new_file_path} already exists.")
 
-            os_rename(file_path, new_file_path)
+            os.rename(file_path, new_file_path)
 
 
 def bulk_move_copy(
@@ -940,9 +940,9 @@ def bulk_move_copy(
         check_filepath(dest_filepath, FileCheckType.EXISTS)
 
         if operation == OperationType.MOVE:
-            shutil_move(str(src_filepath), str(dest_filepath))
+            shutil.move(str(src_filepath), str(dest_filepath))
         elif operation == OperationType.COPY:
-            shutil_copy(str(src_filepath), str(dest_filepath))
+            shutil.copy(str(src_filepath), str(dest_filepath))
 
 
 def lock_file(
@@ -1039,7 +1039,7 @@ def save_versioned_file(
     base_name = Path(standardized_filename).stem
     version_files = sorted(
         Path(folder).glob(f"{base_name}_*.{file_type.name.lower()}"),
-        key=os_path.getmtime
+        key=os.path.getmtime
     )
 
     while len(version_files) > max_versions:
@@ -1072,9 +1072,9 @@ def _serialize(
     write_mode = 'w' if serialization_type == SerializationType.JSON else 'wb'
     with open(filepath, write_mode) as file:
         if serialization_type == SerializationType.JSON:
-            json_dump(data, file)
+            json.dump(data, file)
         else:
-            pickle_dump(data, file)
+            pickle.dump(data, file)
 
 
 def _deserialize(
@@ -1102,9 +1102,9 @@ def _deserialize(
     read_mode = 'r' if serialization_type == SerializationType.JSON else 'rb'
     with open(filepath, read_mode) as file:
         if serialization_type == SerializationType.JSON:
-            return json_load(file)
+            return json.load(file)
         else:
-            return pickle_load(file)
+            return pickle.load(file)
 
 
 def serialize_deserialize(
