@@ -1,16 +1,16 @@
+import csv
+import json
+import xml.etree.ElementTree as ET
 from configparser import ConfigParser
-from csv import reader as csv_reader
-from json import load as json_load
 from pathlib import Path
 from typing import Union
 from warnings import warn
-from xml.etree.ElementTree import parse as et_parse
 
+import yaml
 from PIL import Image
 from PyPDF2 import PdfFileReader
 from cv2 import VideoCapture
 from soundfile import SoundFile
-from yaml import safe_load as yaml_safe_load
 
 from toad_tools.enum_hatchery import FileCheckType, FileType
 from toad_tools.file_utils import check_filepath
@@ -198,7 +198,7 @@ def _validate_json(f):
         bool: True if the file is a valid JSON, False otherwise.
     """
     try:
-        json_load(f)
+        json.load(f)
         return True
     except:
         return False
@@ -232,7 +232,7 @@ def _validate_xml(f):
         bool: True if the file is a well-formed XML, False otherwise.
     """
     try:
-        et_parse(f)
+        ET.parse(f)
         return True
     except:
         return False
@@ -248,7 +248,7 @@ def _validate_yaml(f):
         bool: True if the file is a well-formed YAML, False otherwise.
     """
     try:
-        yaml_safe_load(f)
+        yaml.safe_load(f)
         return True
     except:
         return False
@@ -287,7 +287,7 @@ def _validate_csv(f):
         bool: True if the file is a valid CSV file, False otherwise.
     """
     try:
-        reader = csv_reader(f)
+        reader = csv.reader(f)
         next(reader)
         return True
     except:
