@@ -1,4 +1,5 @@
 from codecs import open as codecs_open
+from csv import reader as csv_reader
 from datetime import datetime
 from hashlib import new as hashlib_new
 from json import dump as json_dump, load as json_load
@@ -8,17 +9,81 @@ from pickle import dump as pickle_dump, load as pickle_load
 from re import search as re_search
 from shutil import copy as shutil_copy, move as shutil_move
 from time import time as time_time
-from typing import Any, Callable, Dict, Generator, List, Optional, Union
-from xml.etree.ElementTree import parse as et_parse
+from typing import Any, Callable, Dict, Generator, List, Optional, Tuple, Union
 
 from PIL import Image
 from chardet import detect as chardet_detect
+from cv2 import VideoCapture
 from filelock import FileLock, Timeout
+from soundfile import read as soundfile_read
+from yaml import safe_load as yaml_safe_load
 
 from toad_tools.enum_hatchery import ChecksumType, FileCheckType, FileType, OperationType, SerializationType
+from toad_tools.file_type_validator import file_type_validator
 
 
 # =========================================================================== #
+
+def get_file_type_map() -> Dict[FileType, Tuple[str, Callable]]:
+    """
+    Returns a mapping of file types to read modes and read functions.
+
+    This function returns a dictionary where the keys are FileType enums and
+    the values are tuples containing the read mode ('r' or 'rb') and a callable
+    read function to handle files of that type.
+
+    Returns:
+        Dict[FileType, Tuple[str, Callable]]: A dictionary mapping file types
+        to read modes and read functions.
+    """
+
+    def _read_text_file(f):
+        """Reads and returns the entire content of a text file."""
+        return f.read()
+
+    def _read_image(f):
+        """Reads and returns an image file as a PIL Image object."""
+        return Image.open(f)
+
+    def _read_audio(f):
+        """Reads and returns an audio file as a soundfile object."""
+        return soundfile_read(f)
+
+    def _read_video(f):
+        """Reads and returns a video file as a cv2 VideoCapture object."""
+        return VideoCapture(f)
+
+    return {
+        FileType.JSON: ('r', json_load),
+        FileType.HTML: ('r', _read_text_file),
+        FileType.SQL : ('r', _read_text_file),
+        FileType.XML : ('r', _read_text_file),
+        FileType.CSV: ('r', csv_reader),
+        FileType.YAML: ('r', yaml_safe_load),
+        FileType.TXT: ('r', _read_text_file),
+        FileType.MD: ('r', _read_text_file),
+        FileType.INI: ('r', _read_text_file),
+        FileType.LOG: ('r', _read_text_file),
+        FileType.CONF: ('r', _read_text_file),
+        FileType.PY: ('r', _read_text_file),
+        FileType.JS: ('r', _read_text_file),
+        FileType.CSS: ('r', _read_text_file),
+        FileType.JPG: ('rb', _read_image),
+        FileType.PNG: ('rb', _read_image),
+        FileType.GIF: ('rb', _read_image),
+        FileType.BMP: ('rb', _read_image),
+        FileType.TIFF: ('rb', _read_image),
+        FileType.PDF: ('rb', _read_text_file),
+        FileType.MP3: ('rb', _read_audio),
+        FileType.WAV: ('rb', _read_audio),
+        FileType.FLAC: ('rb', _read_audio),
+        FileType.MP4: ('rb', _read_video),
+        FileType.AVI: ('rb', _read_video),
+        FileType.MKV: ('rb', _read_video),
+        FileType.MOV: ('rb', _read_video),
+        FileType.WMV: ('rb', _read_video)
+    }
+
 
 def check_filepath(
     filepath: Path,
@@ -77,7 +142,6 @@ def force_extension(
     Raises:
         ValueError: If either the filename or extension is empty or None.
     """
-
     if not filename:
         raise ValueError("Filename cannot be empty or None.")
 
@@ -129,7 +193,6 @@ def get_file(
         FileNotFoundError: If the specified file is not found.
         ValueError: If an unsupported file type is specified.
     """
-
     if not folder or not filename:
         raise ValueError("Folder and filename cannot be empty or None.")
 
@@ -137,13 +200,7 @@ def get_file(
     filepath = Path(folder) / standardized_filename
     check_filepath(filepath, FileCheckType.EXISTS)
 
-    # mapping file types to their read modes
-    file_type_map = {
-        FileType.JSON: ('r', json_load),
-        FileType.HTML: ('r', lambda f: f.read()),
-        FileType.SQL : ('r', lambda f: f.read()),
-        # ... (other file types)    # TODO
-    }
+    file_type_map = get_file_type_map()
 
     if file_type not in file_type_map:
         raise ValueError(f"Unsupported file type: {file_type.name}")
@@ -191,7 +248,6 @@ def duplicate_file(
         RuntimeError: If the file type is not supported for duplication.
         FileExistsError: If the destination file already exists.
     """
-
     if not source_folder or not source_filename or not dest_folder:
         raise ValueError("Source folder, source filename, and destination "
                          "folder cannot be empty or None.")
@@ -226,14 +282,13 @@ def delete_file(
     folder: str,
     filename: str,
     file_type: FileType,
-    require_confirmation: Optional[bool] = False,
-    confirm_programmatically: Optional[bool] = False
+    require_confirmation: Optional[bool] = False
 ) -> bool:
     """
     Deletes a file with optional confirmation steps.
 
-    This function deletes a specified file and can also require a manual or
-    programmatic confirmation before proceeding with the deletion.
+    This function deletes a specified file and can also require a manual
+    confirmation before proceeding with the deletion.
 
     Args:
         folder (str): The path to the folder containing the file to delete.
@@ -241,9 +296,6 @@ def delete_file(
         file_type (FileType): Enum representing the file type.
         require_confirmation (Optional[bool]): Whether to require a
             confirmation before deletion. Defaults to False.
-        confirm_programmatically (Optional[bool]): Whether to confirm the
-            deletion programmatically. If True, logic for programmatic
-            confirmation should be added. Defaults to False.
 
     Returns:
         bool: True if the file was deleted, False otherwise.
@@ -252,7 +304,6 @@ def delete_file(
         ValueError: If either the folder or filename is empty or None.
         FileNotFoundError: If the specified file is not found in the folder.
     """
-
     if not folder or not filename:
         raise ValueError("Folder and filename cannot be empty or None.")
 
@@ -261,15 +312,11 @@ def delete_file(
     check_filepath(filepath, FileCheckType.EXISTS)
 
     if require_confirmation:
-        if confirm_programmatically:
-            # Logic for programmatic confirmation can be added here.    # TODO
-            pass
-        else:
-            confirm = input(f"Are you sure you want to delete "
-                            f"'{standardized_filename}'? [y/N]: ")
-            if confirm.lower() != 'y':
-                print("File deletion cancelled.")
-                return False
+        confirm = input(f"Are you sure you want to delete "
+                        f"'{standardized_filename}'? [y/N]: ")
+        if confirm.lower() != 'y':
+            print("File deletion cancelled.")
+            return False
 
     filepath.unlink()
     print(f"'{standardized_filename}' has been deleted.")
@@ -317,7 +364,6 @@ def rename_file(
         FileExistsError: If the destination file already exists and `overwrite`
             is False.
     """
-
     if not src_folder or not src_filename:
         raise ValueError("Source folder and source filename cannot be "
                          "empty or None.")
@@ -366,7 +412,6 @@ def ensure_directory_exists(
         FileExistsError: If the path exists but is not a directory.
         PermissionError: If there's no permission to create the directory.
     """
-
     if not folder:
         raise ValueError("Folder cannot be empty or None.")
 
@@ -419,7 +464,6 @@ def directory_cleanup(
         ValueError: If the directory is empty or None.
         FileNotFoundError: If the specified directory does not exist.
     """
-
     if not directory:
         raise ValueError("Directory cannot be empty or None.")
 
@@ -481,7 +525,6 @@ def get_file_size(
         ValueError: If either the folder or filename is empty or None.
         FileNotFoundError: If the file is not found in the specified folder.
     """
-
     if not folder or not filename:
         raise ValueError("Folder and filename cannot be empty or None.")
 
@@ -520,7 +563,6 @@ def get_last_modified(
     Raises:
         ValueError: If either the folder or filename is empty or None.
     """
-
     if not folder or not filename:
         raise ValueError("Folder and filename cannot be empty or None.")
 
@@ -560,34 +602,12 @@ def validate_file_type(
     Raises:
         ValueError: If either the folder or filename is empty or None.
     """
-
     if not folder or not filename:
         raise ValueError("Folder and filename cannot be empty or None.")
 
     std_filename = force_extension(filename, expected_type.name.lower())
     filepath = Path(folder) / std_filename
-
-    # mapping file types to their validation functions
-    type_validators = {
-        FileType.JSON: lambda f: json_load(f),
-        FileType.HTML: lambda f: '<html>' in f.read().lower(),
-        FileType.XML : lambda f: et_parse(str(filepath)),
-        FileType.PNG : lambda f: Image.open(filepath).verify(),
-        FileType.JPG : lambda f: Image.open(filepath).verify(),
-        # ... (other file types)    # TODO
-    }
-
-    if expected_type not in type_validators:
-        return "File type not supported for validation."
-
-    try:
-        with open(filepath, 'r') as file:
-            if not type_validators[expected_type](file):
-                return f"Invalid {expected_type.name} file."
-    except Exception as e:
-        return str(e)
-
-    return None
+    return file_type_validator(filepath, expected_type)
 
 
 def concatenate_files(
@@ -617,7 +637,6 @@ def concatenate_files(
             or None.
         FileNotFoundError: If one or more files are not found in the folder.
     """
-
     if not folder or not filenames or not output_filename:
         raise ValueError("Folder, filenames, and output filename cannot be "
                          "empty or None.")
@@ -664,7 +683,6 @@ def count_lines(
     Raises:
         ValueError: If either the folder or filename is empty or None.
     """
-
     if not folder or not filename:
         raise ValueError("Folder and filename cannot be empty or None.")
 
@@ -705,7 +723,6 @@ def convert_file_encoding(
     Raises:
         ValueError: If either the folder or filename is empty or None.
     """
-
     if not folder or not filename:
         raise ValueError("Folder and filename cannot be empty or None.")
 
@@ -814,7 +831,6 @@ def calculate_checksum(
         ValueError: If either the folder or filename is empty or None.
         FileNotFoundError: If the file is not found in the specified folder.
     """
-
     if not folder or not filename:
         raise ValueError("Folder and filename cannot be empty or None.")
 
@@ -853,7 +869,6 @@ def bulk_rename(
         NotADirectoryError: If the specified folder is not a directory.
         FileExistsError: If a renamed file would overwrite an existing file.
     """
-
     if not folder or not rename_func:
         raise ValueError("Folder and rename function cannot be empty or None.")
 
@@ -904,7 +919,6 @@ def bulk_move_copy(
         FileExistsError: If a destination file already exists in destination
             folder.
     """
-
     if not src_folder or not dest_folder or not filenames:
         raise ValueError("Source folder, destination folder, and filenames "
                          "cannot be empty or None.")
@@ -963,7 +977,6 @@ def lock_file(
         ValueError: If either the folder or filename is empty or None.
         Timeout: If the lock could not be acquired within the specified timeout.
     """
-
     if not folder or not filename:
         raise ValueError("Folder and filename cannot be empty or None.")
 
@@ -1011,7 +1024,6 @@ def save_versioned_file(
     Raises:
         ValueError: If the folder, filename, or content is empty or None.
     """
-
     if not folder or not filename or content is None:
         raise ValueError("Folder, filename, and content cannot be empty "
                          "or None.")
@@ -1057,7 +1069,6 @@ def _serialize(
     Raises:
         OSError: If the file could not be written.
     """
-
     write_mode = 'w' if serialization_type == SerializationType.JSON else 'wb'
     with open(filepath, write_mode) as file:
         if serialization_type == SerializationType.JSON:
@@ -1088,7 +1099,6 @@ def _deserialize(
         FileNotFoundError: If the file is not found.
         OSError: If the file could not be read.
     """
-
     read_mode = 'r' if serialization_type == SerializationType.JSON else 'rb'
     with open(filepath, read_mode) as file:
         if serialization_type == SerializationType.JSON:
@@ -1131,7 +1141,6 @@ def serialize_deserialize(
         FileNotFoundError: If the file for deserialization is not found.
         ValueError: If an invalid operation type is specified.
     """
-
     if not filepath:
         raise ValueError("Filepath cannot be empty or None.")
 
@@ -1156,7 +1165,7 @@ def read_large_file_in_chunks(
     folder: str,
     filename: str,
     file_type: FileType,
-    chunk_size: int = 1024  # 1KB by default
+    chunk_size: int = 1024
 ) -> Generator[str, None, None]:
     """
     Reads a large file in chunks and yields each chunk as a string.
@@ -1179,7 +1188,6 @@ def read_large_file_in_chunks(
         FileNotFoundError: If the specified file is not found in the given
             folder.
     """
-
     if not folder or not filename or chunk_size <= 0:
         raise ValueError("Folder, filename, and chunk size cannot be empty, "
                          "None, or non-positive.")
@@ -1222,7 +1230,6 @@ def write_large_string_in_chunks(
         ValueError: If the folder, filename, large_string are empty or None,
             or if chunk_size is non-positive.
     """
-
     if not folder or not filename or large_string is None or chunk_size <= 0:
         raise ValueError("Folder, filename, large string, and chunk size "
                          "cannot be empty, None, or non-positive.")
