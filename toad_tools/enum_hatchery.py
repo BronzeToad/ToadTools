@@ -1,31 +1,26 @@
-from enum import Enum
+from enum import Enum, auto
 
 
 # =========================================================================== #
 
 class ChecksumType(Enum):
-    SHA256 = "sha256"
-    MD5 = "md5"
-    SHA1 = "sha1"
-
+    SHA256 = auto()
+    MD5 = auto()
+    SHA1 = auto()
 
 class OperationType(Enum):
-    MOVE = "move"
-    COPY = "copy"
-
+    MOVE = auto()
+    COPY = auto()
 
 class SerializationType(Enum):
-    JSON = "json"
-    PICKLE = "pkl"
-
+    JSON = auto()
+    PICKLE = auto()
 
 class FileCheckType(Enum):
-    EXISTS = 1
-    NOT_FOUND = 2
-
+    EXISTS = auto()
+    NOT_FOUND = auto()
 
 class FileType(Enum):
-    # Text-based file types
     JSON = "json"
     HTML = "html"
     SQL = "sql"
@@ -40,7 +35,6 @@ class FileType(Enum):
     PY = "py"
     JS = "js"
     CSS = "css"
-    # Binary file types
     JPG = "jpg"
     PNG = "png"
     GIF = "gif"
