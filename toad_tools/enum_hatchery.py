@@ -1,31 +1,43 @@
-from enum import Enum
+from enum import Enum, auto
 
 
 # =========================================================================== #
 
 class ChecksumType(Enum):
-    SHA256 = "sha256"
-    MD5 = "md5"
-    SHA1 = "sha1"
-
+    SHA256 = auto()
+    MD5 = auto()
+    SHA1 = auto()
 
 class OperationType(Enum):
-    MOVE = "move"
-    COPY = "copy"
-
+    MOVE = auto()
+    COPY = auto()
 
 class SerializationType(Enum):
-    JSON = "json"
-    PICKLE = "pkl"
-
+    JSON = auto()
+    PICKLE = auto()
 
 class FileCheckType(Enum):
-    EXISTS = 1
-    NOT_FOUND = 2
+    EXISTS = auto()
+    NOT_FOUND = auto()
 
+class CurrencyType(Enum):
+    USD = {'symbol': '$', 'placement': 'before', 'decimal_places': 2}
+    EUR = {'symbol': '€', 'placement': 'before', 'decimal_places': 2}
+    GBP = {'symbol': '£', 'placement': 'before', 'decimal_places': 2}
+    JPY = {'symbol': '¥', 'placement': 'before', 'decimal_places': 0}
+    INR = {'symbol': '₹', 'placement': 'before', 'decimal_places': 2}
+    AUD = {'symbol': 'A$', 'placement': 'before', 'decimal_places': 2}
+    CAD = {'symbol': 'C$', 'placement': 'before', 'decimal_places': 2}
+    CHF = {'symbol': 'CHF', 'placement': 'after', 'decimal_places': 2}
+    CNY = {'symbol': '¥', 'placement': 'before', 'decimal_places': 2}
+    BRL = {'symbol': 'R$', 'placement': 'before', 'decimal_places': 2}
+    MXN = {'symbol': 'MX$', 'placement': 'before', 'decimal_places': 2}
+    NZD = {'symbol': 'NZ$', 'placement': 'before', 'decimal_places': 2}
+    NOK = {'symbol': 'kr', 'placement': 'before', 'decimal_places': 2}
+    RUB = {'symbol': '₽', 'placement': 'before', 'decimal_places': 2}
+    ZAR = {'symbol': 'R', 'placement': 'before', 'decimal_places': 2}
 
 class FileType(Enum):
-    # Text-based file types
     JSON = "json"
     HTML = "html"
     SQL = "sql"
@@ -40,7 +52,6 @@ class FileType(Enum):
     PY = "py"
     JS = "js"
     CSS = "css"
-    # Binary file types
     JPG = "jpg"
     PNG = "png"
     GIF = "gif"
