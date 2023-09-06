@@ -292,46 +292,52 @@ def test_validate_file_type(tmpdir, folder, filename, expected_type, expected):
     assert fileutils.validate_file_type(str(folder_path), filename, expected_type) == expected
 
 
-# test concatenate_files
 def test_concatenate_files(tmpdir):
+    """Test for concatenate_files."""
     folder = tmpdir.mkdir("folder")
     filenames = ["file1.txt", "file2.txt"]
-    file_type = FileType.TXT
-    output_filename = "output.txt"
-    delimiter = "\n"
+
     for name in filenames:
         path = folder / name
         with open(path, 'w') as f:
             f.write(f"Content of {name}")
-    fileutils.concatenate_files(str(folder), filenames, file_type,
-                                output_filename, delimiter)
+
+    fileutils.concatenate_files(
+        folder=str(folder),
+        filenames=filenames,
+        file_type=FileType.TXT,
+        output_filename="output.txt",
+        delimiter="\n"
+    )
+
     output_filepath = folder / "output.txt"
+
     with open(output_filepath, 'r') as f:
         content = f.read()
+
     assert content == "Content of file1.txt\nContent of file2.txt"
 
 
-# test concatenate_files with invalid inputs
 def test_concatenate_files_missing_files(tmpdir):
-    folder = tmpdir.mkdir("folder")
-    filenames = ["missing_file.txt"]
-    file_type = FileType.TXT
-    output_filename = "output.txt"
+    """Test for concatenate_files with invalid inputs."""
     with pytest.raises(FileNotFoundError):
-        fileutils.concatenate_files(str(folder), filenames, file_type,
-                                    output_filename)
+        fileutils.concatenate_files(
+            folder=str(tmpdir.mkdir("folder")),
+            filenames=["missing_file.txt"],
+            file_type=FileType.TXT,
+            output_filename="output.txt"
+        )
 
 
-# test count_lines
 @pytest.mark.parametrize("folder, filename, file_type, expected", [
     ("/path/to/folder", "file.txt", FileType.TXT, 10),
     ("/path/to/folder", "image.jpg", FileType.JPG, "Line count is not applicable for binary files")
 ])
 def test_count_lines(folder, filename, file_type, expected):
+    """Test for count_lines."""
     assert fileutils.count_lines(folder, filename, file_type) == expected
 
 
-# test count_lines with invalid inputs
 @pytest.mark.parametrize("folder, filename", [
     (None, "file.txt"),
     ("", "file.txt"),
@@ -339,26 +345,32 @@ def test_count_lines(folder, filename, file_type, expected):
     ("/path/to/folder", ""),
 ])
 def test_count_lines_invalid_inputs(folder, filename):
+    """Test for count_lines with invalid inputs."""
     with pytest.raises(ValueError):
         fileutils.count_lines(folder, filename, FileType.TXT)
 
 
-# test convert_file_encoding
 def test_convert_file_encoding():
+    """Test for convert_file_encoding."""
     folder = "/path/to/folder"
     filename = "file.txt"
     file_type = FileType.TXT
-    target_encoding = "utf-8"
-    source_encoding = "ascii"
     initial_content = fileutils.get_file(folder, filename, file_type)
-    fileutils.convert_file_encoding(folder, filename, file_type, target_encoding, source_encoding)
+
+    fileutils.convert_file_encoding(
+        folder=folder,
+        filename=filename,
+        file_type=file_type,
+        target_encoding="utf-8",
+        source_encoding="ascii"
+    )
+
     final_content = fileutils.get_file(folder, filename, file_type)
 
     # Add your assertions here based on what you expect to happen during the conversion   # TODO
     assert initial_content != final_content  # This is just a placeholder   # TODO
 
 
-# test convert_file_encoding with invalid inputs
 @pytest.mark.parametrize("folder, filename", [
     (None, "file.txt"),
     ("", "file.txt"),
@@ -366,21 +378,33 @@ def test_convert_file_encoding():
     ("/path/to/folder", ""),
 ])
 def test_convert_file_encoding_invalid_inputs(folder, filename):
+    """Test for convert_file_encoding with invalid inputs."""
     with pytest.raises(ValueError):
-        fileutils.convert_file_encoding(folder, filename, FileType.TXT, "utf-8")
+        fileutils.convert_file_encoding(
+            folder=folder,
+            filename=filename,
+            file_type=FileType.TXT,
+            target_encoding="utf-8"
+        )
 
 
-# test search_text_in_file
-@pytest.mark.parametrize("folder, filename, query, is_regex, case_sensitive, file_type, expected", [
+@pytest.mark.parametrize("folder, fname, qry, regex, cs, ftype, expected", [
     ("/some/folder", "file.txt", "query", False, False, None, ["line with query"]),
     ("/some/folder", "file.txt", "^query$", True, False, None, ["query"]),
-    # Add more test cases
+    # Add more test cases   # TODO
 ])
-def test_search_text_in_file(folder, filename, query, is_regex, case_sensitive, file_type, expected):
-    assert fileutils.search_text_in_file(folder, filename, query, is_regex, case_sensitive, file_type) == expected
+def test_search_text_in_file(folder, fname, qry, regex, cs, ftype, expected):
+    """Test for search_text_in_file."""
+    assert fileutils.search_text_in_file(
+        folder=folder,
+        filename=fname,
+        query=qry,
+        is_regex=regex,
+        case_sensitive=cs,
+        file_type=ftype
+    ) == expected
 
 
-# test search_text_in_file with invalid inputs
 @pytest.mark.parametrize("folder, filename, query", [
     (None, "file.txt", "query"),
     ("/some/folder", None, "query"),
@@ -388,6 +412,7 @@ def test_search_text_in_file(folder, filename, query, is_regex, case_sensitive, 
     # Add more test cases    # TODO
 ])
 def test_search_text_in_file_invalid_inputs(folder, filename, query):
+    """Test for search_text_in_file with invalid inputs."""
     with pytest.raises(ValueError):
         fileutils.search_text_in_file(folder, filename, query)
 
