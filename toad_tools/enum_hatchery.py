@@ -66,3 +66,15 @@ class FileType(Enum):
     MKV = "mkv"
     MOV = "mov"
     WMV = "wmv"
+
+class StringCase(Enum):
+    CAMEL = auto()      # camelCase
+    COBOL = auto()      # COBOL-CASE
+    KEBAB = auto()      # kebab-case
+    PASCAL = auto()     # PascalCase
+    SCREAM = auto()     # SCREAM_CASE
+    SNAKE = auto()      # snake_case
+    LOWER = auto()      # lowercase
+    UPPER = auto()      # UPPERCASE
+    TITLE = auto()      # Title Case
+    SPONGEBOB = auto()  # SpOnGeBoB cAsE
