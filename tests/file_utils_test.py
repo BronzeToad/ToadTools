@@ -474,18 +474,27 @@ def test_convert_file_encoding_invalid_inputs(folder, filename):
 @pytest.mark.parametrize("folder, fname, qry, regex, cs, ftype, expected", [
     ("/some/folder", "file.txt", "query", False, False, None, ["line with query"]),
     ("/some/folder", "file.txt", "^query$", True, False, None, ["query"]),
-    # Add more test cases   # TODO
+    ("/some/folder", "file.txt", "Query", False, True, None, []),
+    ("/some/folder", "file.txt", "Query", False, False, None, ["line with query"]),
+    ("/some/folder", "file.md", "query", False, False, FileType.MD, ["line with query"]),
+    ("/some/folder", "file.md", "query", True, True, FileType.MD, []),
+    ("/some/folder", "file.html", "<title>query</title>", True, False, FileType.HTML, ["<title>query</title>"]),
+    ("/some/folder", "file.csv", "query", False, False, FileType.CSV, ["query,123"]),
+    ("/some/folder", "file.json", "query", False, False, FileType.JSON, ["\"key\": \"query\""]),
+    ("/some/folder", "file.css", ".query {}", False, False, FileType.CSS, [".query {}"]),
+    # ... add more test cases for remaining file types, if needed ...
 ])
 def test_search_text_in_file(folder, fname, qry, regex, cs, ftype, expected):
     """Test for search_text_in_file."""
-    assert fileutils.search_text_in_file(
-        folder=folder,
-        filename=fname,
-        query=qry,
-        is_regex=regex,
-        case_sensitive=cs,
-        file_type=ftype
-    ) == expected
+    with patch('builtins.open', mock_open(read_data='mocked data')):
+        assert fileutils.search_text_in_file(
+            folder=folder,
+            filename=fname,
+            query=qry,
+            is_regex=regex,
+            case_sensitive=cs,
+            file_type=ftype
+        ) == expected
 
 
 @pytest.mark.parametrize("folder, filename, query", [
