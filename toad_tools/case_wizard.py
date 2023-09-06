@@ -22,12 +22,12 @@ class CaseWizard:
         self.input_string = input_string
         self.output_case = output_case
 
-    def convert(self):
+    def convert(self) -> str:
         """Convert the string to the specified case."""
         case_map = self._get_case_map()
         return case_map[self.output_case]()
 
-    def _get_case_map(self):
+    def _get_case_map(self) -> dict:
         """Get the mapping of StringCase to conversion methods."""
         return {
             StringCase.CAMEL: self._to_camel_case,
@@ -42,33 +42,33 @@ class CaseWizard:
             StringCase.SPONGEBOB: self._to_spongebob_case
         }
 
-    def _to_camel_case(self):
+    def _to_camel_case(self) -> str:
         """Convert to camel case."""
         words = self.input_string.lower().split()
         return words[0] + ''.join(word.capitalize() for word in words[1:])
 
-    def _to_cobol_case(self):
+    def _to_cobol_case(self) -> str:
         """Convert to COBOL case."""
         return self.input_string.upper().replace(' ', '-')
 
-    def _to_kebab_case(self):
+    def _to_kebab_case(self) -> str:
         """Convert to kebab case."""
         return self.input_string.lower().replace(' ', '-')
 
-    def _to_pascal_case(self):
+    def _to_pascal_case(self) -> str:
         """Convert to Pascal case."""
         words = self.input_string.lower().split()
         return ''.join(word.capitalize() for word in words)
 
-    def _to_scream_case(self):
+    def _to_scream_case(self) -> str:
         """Convert to scream case."""
         return self.input_string.upper().replace(' ', '_')
 
-    def _to_snake_case(self):
+    def _to_snake_case(self) -> str:
         """Convert to snake case."""
         return self.input_string.lower().replace(' ', '_')
 
-    def _to_lower_case(self):
+    def _to_lower_case(self) -> str:
         """Convert to lowercase."""
         return self.input_string.lower()
 
@@ -76,11 +76,11 @@ class CaseWizard:
         """Convert to uppercase."""
         return self.input_string.upper()
 
-    def _to_title_case(self):
+    def _to_title_case(self) -> str:
         """Convert to title case."""
         return self.input_string.title()
 
-    def _to_spongebob_case(self):
+    def _to_spongebob_case(self) -> str:
         """Convert to Spongebob case.
 
         Notes:
