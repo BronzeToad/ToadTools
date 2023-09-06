@@ -56,21 +56,28 @@ def test_force_extension_invalid_inputs(filename, extension):
         fileutils.force_extension(filename, extension)
 
 
-@pytest.mark.parametrize("folder, fname, file_type, find_replace, expected", [
-    ("/tmp", "test.json", FileType.JSON, None, {
-        "key": "value"}),
-    ("/tmp", "test.html", FileType.HTML, {
-        "<title>": "<heading>"}, "<heading>Test</heading>"),
-    # Add more scenarios based on your specific requirements    # TODO
-])
-def test_get_file(folder, fname, file_type, find_replace, expected):
+@pytest.mark.parametrize(
+    "folder, fname, file_type, find_replace, expected, mock_read_func, mock_content",
+    [
+        ("/tmp", "test.json", FileType.JSON, None, {"key": "value"}, "json.load", '{"key": "value"}'),
+        ("/tmp", "test.html", FileType.HTML, {"<title>": "<heading>"}, "<heading>Test</heading>", "_read_text_file", "<title>Test</title>"),
+        ("/tmp", "test.txt", FileType.TXT, {"hello": "world"}, "world", "_read_text_file", "hello"),
+        ("/tmp", "test.csv", FileType.CSV, None, [["name", "age"], ["Alice", "30"]], "csv.reader", "name,age\nAlice,30"),
+        ("/tmp", "test.yaml", FileType.YAML, None, {"key": "value"}, "yaml.safe_load", "key: value"),
+        ("/tmp", "test.xml", FileType.XML, {"<name>": "<username>"}, "<username>John</username>", "_read_text_file", "<name>John</name>"),
+        ("/tmp", "test.md", FileType.MD, {"# Title": "## Subtitle"}, "## Subtitle", "_read_text_file", "# Title"),
+    ],
+)
+def test_get_file(folder, fname, file_type, find_replace, expected, mock_read_func, mock_content):
     """Test for get_file."""
-    assert fileutils.get_file(
-        folder=folder,
-        filename=fname,
-        file_type=file_type,
-        find_replace=find_replace
-    ) == expected
+    with patch(f"your_module.{mock_read_func}") as mocked_func:
+        mocked_func.return_value = mock_content
+        assert fileutils.get_file(
+            folder=folder,
+            filename=fname,
+            file_type=file_type,
+            find_replace=find_replace,
+        ) == expected
 
 
 @pytest.mark.parametrize("folder, filename", [
@@ -86,17 +93,31 @@ def test_get_file_invalid_inputs(folder, filename):
 @pytest.mark.parametrize("src_folder, src_fname, dest_folder, file_type, dest_fname, expected", [
     ("/tmp", "source.json", "/tmp/dest", FileType.JSON, None, "/tmp/dest/source.json"),
     ("/tmp", "source.html", "/tmp/dest", FileType.HTML, "dest.html", "/tmp/dest/dest.html"),
-    # Add more scenarios based on your specific requirements    # TODO
+    ("/tmp", "source.csv", "/tmp/dest", FileType.CSV, "dest.csv", "/tmp/dest/dest.csv"),
+    ("/tmp", "source.yaml", "/tmp/dest", FileType.YAML, None, "/tmp/dest/source.yaml"),
+    ("/tmp", "source.xml", "/tmp/dest", FileType.XML, "dest.xml", "/tmp/dest/dest.xml"),
+    ("/tmp", "source.txt", "/tmp/dest", FileType.TXT, "dest.txt", "/tmp/dest/dest.txt"),
+    ("/tmp", "source.md", "/tmp/dest", FileType.MD, None, "/tmp/dest/source.md"),
+    ("/tmp", "source.ini", "/tmp/dest", FileType.INI, "dest.ini", "/tmp/dest/dest.ini"),
+    ("/tmp", "source.log", "/tmp/dest", FileType.LOG, None, "/tmp/dest/source.log"),
+    ("/tmp", "source.conf", "/tmp/dest", FileType.CONF, "dest.conf", "/tmp/dest/dest.conf"),
+    ("/tmp", "source.py", "/tmp/dest", FileType.PY, None, "/tmp/dest/source.py"),
+    ("/tmp", "source.js", "/tmp/dest", FileType.JS, "dest.js", "/tmp/dest/dest.js"),
+    ("/tmp", "source.css", "/tmp/dest", FileType.CSS, None, "/tmp/dest/source.css"),
+    ("/tmp", "source.jpg", "/tmp/dest", FileType.JPG, "dest.jpg", "/tmp/dest/dest.jpg"),
+    ("/tmp", "source.png", "/tmp/dest", FileType.PNG, None, "/tmp/dest/source.png"),
+    # ... other test cases for remaining file types ...
 ])
 def test_duplicate_file(src_folder, src_fname, dest_folder, file_type, dest_fname, expected):
     """Test for duplicate_file."""
-    assert fileutils.duplicate_file(
-        source_folder=src_folder,
-        source_filename=src_fname,
-        dest_folder=dest_folder,
-        file_type=file_type,
-        dest_filename=dest_fname
-    ) == expected
+    with patch('shutil.copy2'):
+        assert fileutils.duplicate_file(
+            source_folder=src_folder,
+            source_filename=src_fname,
+            dest_folder=dest_folder,
+            file_type=file_type,
+            dest_filename=dest_fname
+        ) == expected
 
 
 @pytest.mark.parametrize("src_folder, src_fname, dest_folder", [
