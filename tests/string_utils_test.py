@@ -4,7 +4,7 @@ import src.string_utils as strutils
 
 # =========================================================================== #
 
-# Test for remove_punctuation
+# test remove_punctuation
 @pytest.mark.parametrize("input_str, expected", [
     ("Hello, World!", "Hello World"),
     ("No-change", "Nochange"),
@@ -17,7 +17,7 @@ def test_remove_punctuation_invalid_input():
     with pytest.raises(ValueError):
         strutils.remove_punctuation(None)
 
-# Test for normalize_whitespace
+# test normalize_whitespace
 @pytest.mark.parametrize("input_str, expected", [
     (" Hello  World ", "Hello World"),
     ("No change", "No change"),
@@ -30,7 +30,7 @@ def test_normalize_whitespace_invalid_input():
     with pytest.raises(ValueError):
         strutils.normalize_whitespace(None)
 
-# Test for word_count
+# test word_count
 @pytest.mark.parametrize("input_str, expected", [
     ("Hello World", 2),
     ("One", 1),
@@ -43,7 +43,7 @@ def test_word_count_invalid_input():
     with pytest.raises(ValueError):
         strutils.word_count(None)
 
-# Test for char_count
+# test char_count
 @pytest.mark.parametrize("input_str, ignore_whitespace, expected", [
     ("Hello World", False, 11),
     ("Hello World", True, 10),
@@ -53,7 +53,7 @@ def test_word_count_invalid_input():
 def test_char_count(input_str, ignore_whitespace, expected):
     assert strutils.char_count(input_str, ignore_whitespace) == expected
 
-# Test for unique_words
+# test unique_words
 @pytest.mark.parametrize("input_str, expected", [
     ("hello hello world", ["hello", "world"]),
     ("a a b b c c", ["a", "b", "c"]),
@@ -62,7 +62,7 @@ def test_char_count(input_str, ignore_whitespace, expected):
 def test_unique_words(input_str, expected):
     assert strutils.unique_words(input_str) == expected
 
-# Test for unique_chars
+# test unique_chars
 @pytest.mark.parametrize("input_str, expected", [
     ("hello", ['h', 'e', 'l', 'o']),
     ("aabcc", ['a', 'b', 'c']),
@@ -71,7 +71,7 @@ def test_unique_words(input_str, expected):
 def test_unique_chars(input_str, expected):
     assert strutils.unique_chars(input_str) == expected
 
-# Test for reverse_words
+# test reverse_words
 @pytest.mark.parametrize("input_str, expected", [
     ("hello world", "world hello"),
     ("a b c", "c b a"),
@@ -80,7 +80,7 @@ def test_unique_chars(input_str, expected):
 def test_reverse_words(input_str, expected):
     assert strutils.reverse_words(input_str) == expected
 
-# Test for reverse_chars
+# test reverse_chars
 @pytest.mark.parametrize("input_str, expected", [
     ("hello", "olleh"),
     ("abc", "cba"),
@@ -89,7 +89,7 @@ def test_reverse_words(input_str, expected):
 def test_reverse_chars(input_str, expected):
     assert strutils.reverse_chars(input_str) == expected
 
-# Test for find_substrings
+# test find_substrings
 @pytest.mark.parametrize("input_str, substr, expected", [
     ("hello world hello", "hello", [0, 12]),
     ("aabcaabc", "abc", [1, 5]),
@@ -98,7 +98,7 @@ def test_reverse_chars(input_str, expected):
 def test_find_substrings(input_str, substr, expected):
     assert strutils.find_substrings(input_str, substr) == expected
 
-# Test for replace_substrings
+# test replace_substrings
 @pytest.mark.parametrize("input_str, substr, replacement, expected", [
     ("hello world hello", "hello", "hi", "hi world hi"),
     ("aabcaabc", "abc", "xyz", "axyzaxyz"),
@@ -107,7 +107,7 @@ def test_find_substrings(input_str, substr, expected):
 def test_replace_substrings(input_str, substr, replacement, expected):
     assert strutils.replace_substrings(input_str, substr, replacement) == expected
 
-# Test for encode_base64
+# test encode_base64
 @pytest.mark.parametrize("input_str, expected", [
     ("Hello", "SGVsbG8="),
     ("", ""),
@@ -115,7 +115,7 @@ def test_replace_substrings(input_str, substr, replacement, expected):
 def test_encode_base64(input_str, expected):
     assert strutils.encode_base64(input_str) == expected
 
-# Test for decode_base64
+# test decode_base64
 @pytest.mark.parametrize("input_str, expected", [
     ("SGVsbG8=", "Hello"),
     ("", ""),
@@ -123,7 +123,7 @@ def test_encode_base64(input_str, expected):
 def test_decode_base64(input_str, expected):
     assert strutils.decode_base64(input_str) == expected
 
-# Test for is_base64
+# test is_base64
 @pytest.mark.parametrize("input_str, expected", [
     ("SGVsbG8=", True),
     ("NotBase64", False),
@@ -132,7 +132,7 @@ def test_decode_base64(input_str, expected):
 def test_is_base64(input_str, expected):
     assert strutils.is_base64(input_str) == expected
 
-# Test for format_phone_number
+# test format_phone_number
 @pytest.mark.parametrize("input_str, expected", [
     ("1234567890", "(123) 456-7890"),
     ("", ""),
@@ -140,7 +140,7 @@ def test_is_base64(input_str, expected):
 def test_format_phone_number(input_str, expected):
     assert strutils.format_phone_number(input_str) == expected
 
-# Test for format_currency
+# test format_currency
 @pytest.mark.parametrize("amount, currency, expected", [
     (1234.56, "USD", "$1,234.56"),
     (1234, "JPY", "¥1,234"),
@@ -148,7 +148,7 @@ def test_format_phone_number(input_str, expected):
 def test_format_currency(amount, currency, expected):
     assert strutils.format_currency(amount, currency) == expected
 
-# Test for levenshtein_distance
+# test levenshtein_distance
 @pytest.mark.parametrize("str1, str2, expected", [
     ("kitten", "sitting", 3),
     ("flaw", "lawn", 2),
@@ -157,7 +157,7 @@ def test_format_currency(amount, currency, expected):
 def test_levenshtein_distance(str1, str2, expected):
     assert strutils.levenshtein_distance(str1, str2) == expected
 
-# Test for jaccard_similarity
+# test jaccard_similarity
 @pytest.mark.parametrize("str1, str2, expected", [
     ("apple", "pleas", 0.3),
     ("", "", 1.0),
@@ -165,7 +165,7 @@ def test_levenshtein_distance(str1, str2, expected):
 def test_jaccard_similarity(str1, str2, expected):
     assert strutils.jaccard_similarity(str1, str2) == pytest.approx(expected, 0.1)
 
-# Test for is_palindrome
+# test is_palindrome
 @pytest.mark.parametrize("input_str, expected", [
     ("racecar", True),
     ("hello", False),
@@ -174,7 +174,7 @@ def test_jaccard_similarity(str1, str2, expected):
 def test_is_palindrome(input_str, expected):
     assert strutils.is_palindrome(input_str) == expected
 
-# Test for generate_anagrams
+# test generate_anagrams
 @pytest.mark.parametrize("input_str, expected", [
     ("abc", ["abc", "acb", "bac", "bca", "cab", "cba"]),
     ("aab", ["aab", "aba", "aab", "aba", "baa", "baa"]),  # Duplicates are possible
@@ -183,7 +183,7 @@ def test_is_palindrome(input_str, expected):
 def test_generate_anagrams(input_str, expected):
     assert set(strutils.generate_anagrams(input_str)) == set(expected)
 
-# Test for parse_json_string
+# test parse_json_string
 @pytest.mark.parametrize("input_str, expected", [
     ('{"key": "value"}', {"key": "value"}),
     ('{"boolean": true}', {"boolean": True}),
@@ -192,7 +192,7 @@ def test_generate_anagrams(input_str, expected):
 def test_parse_json_string(input_str, expected):
     assert strutils.parse_json_string(input_str) == expected
 
-# Test for parse_csv_string
+# test parse_csv_string
 @pytest.mark.parametrize("input_str, expected", [
     ("a,b,c\n1,2,3", [["a", "b", "c"], ["1", "2", "3"]]),
     ("name,age\nAlice,30", [["name", "age"], ["Alice", "30"]]),
@@ -205,7 +205,7 @@ def test_parse_csv_string_invalid_input():
     with pytest.raises(ValueError):
         strutils.parse_csv_string(None)
 
-# Test for reverse_string
+# test reverse_string
 @pytest.mark.parametrize("input_str, expected", [
     ("Hello", "olleH"),
     ("World", "dlroW"),
@@ -214,7 +214,7 @@ def test_parse_csv_string_invalid_input():
 def test_reverse_string(input_str, expected):
     assert strutils.reverse_string(input_str) == expected
 
-# Test for count_vowels
+# test count_vowels
 @pytest.mark.parametrize("input_str, expected", [
     ("Hello", 2),
     ("World", 1),
@@ -223,7 +223,7 @@ def test_reverse_string(input_str, expected):
 def test_count_vowels(input_str, expected):
     assert strutils.count_vowels(input_str) == expected
 
-# Test for count_consonants
+# test count_consonants
 @pytest.mark.parametrize("input_str, expected", [
     ("Hello", 3),
     ("World", 3),
@@ -232,7 +232,7 @@ def test_count_vowels(input_str, expected):
 def test_count_consonants(input_str, expected):
     assert strutils.count_consonants(input_str) == expected
 
-# Test for extract_urls
+# test extract_urls
 @pytest.mark.parametrize("input_str, expected", [
     ("Visit https://example.com", ["https://example.com"]),
     ("No URL here", []),
@@ -241,7 +241,7 @@ def test_count_consonants(input_str, expected):
 def test_extract_urls(input_str, expected):
     assert strutils.extract_urls(input_str) == expected
 
-# Test for extract_emails
+# test extract_emails
 @pytest.mark.parametrize("input_str, expected", [
     ("Email me at email@example.com", ["email@example.com"]),
     ("No email here", []),
