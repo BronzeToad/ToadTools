@@ -171,69 +171,79 @@ def test_rename_file_with_overwrite():
 
 
 # test ensure_directory_exists
-@pytest.mark.parametrize("folder, create_if_missing, expected", [
+@pytest.mark.parametrize("folder, flag, expected", [
     ("existing_folder", True, "existing_folder"),
     ("existing_folder", False, "existing_folder"),
     ("non_existent_folder", True, "non_existent_folder"),
     ("non_existent_folder", False, None),
 ])
-def test_ensure_directory_exists(folder, create_if_missing, expected):
+def test_ensure_directory_exists(folder, flag, expected):
     if expected is not None:
-        assert fileutils.ensure_directory_exists(folder,
-                                                 create_if_missing) == expected
+        assert fileutils.ensure_directory_exists(
+            folder=folder,
+            create_if_missing=flag
+        ) == expected
     else:
         assert fileutils.ensure_directory_exists(folder,
                                                  create_if_missing) is None
 
 
-# test ensure_directory_exists with invalid inputs
 @pytest.mark.parametrize("folder", [
     None,
     "",
 ])
 def test_ensure_directory_exists_invalid_inputs(folder):
+    """Test for ensure_directory_exists with invalid inputs."""
     with pytest.raises(ValueError):
         fileutils.ensure_directory_exists(folder)
 
 
-# test directory_cleanup
 def test_directory_cleanup(tmpdir):
+    """Test for directory_cleanup."""
     directory = tmpdir.mkdir("subdir")
-    older_than_days = 1
-    extensions = ['.txt', '.log']
+
     file1 = directory.join("file1.txt")
     file1.write("content")
+
     file2 = directory.join("file2.log")
     file2.write("content")
+
     os.utime(file1, (time.time() - 172800, time.time() - 172800))
+
     deleted_files_count = fileutils.directory_cleanup(
-        str(directory), older_than_days, extensions
+        directory=str(directory),
+        older_than_days=1,
+        extensions=['.txt', '.log']
     )
+
     assert deleted_files_count == 1
     assert not file1.exists()
     assert file2.exists()
 
 
-# test directory_cleanup with invalid inputs
 @pytest.mark.parametrize("directory", [
     None,
     "",
 ])
 def test_directory_cleanup_invalid_inputs(directory):
+    """Test for directory_cleanup with invalid inputs."""
     with pytest.raises(ValueError):
         fileutils.directory_cleanup(directory)
 
 
-# test get_file_size
-@pytest.mark.parametrize("folder, filename, file_type, expected_size", [
+@pytest.mark.parametrize("folder, fname, ftype, expected_size", [
     ("./test_data", "existing_file.txt", None, 1234),
     ("./test_data", "existing_file", FileType.TXT, 1234),
 ])
-def test_get_file_size(folder, filename, file_type, expected_size):
-    assert fileutils.get_file_size(folder, filename, file_type) == expected_size
+def test_get_file_size(folder, fname, ftype, expected_size):
+    """Test for get_file_size."""
+    assert fileutils.get_file_size(
+        folder=folder,
+        filename=fname,
+        file_type=ftype
+    ) == expected_size
 
 
-# test get_file_size with invalid inputs
 @pytest.mark.parametrize("folder, filename", [
     (None, "existing_file.txt"),
     ("", "existing_file.txt"),
@@ -241,27 +251,30 @@ def test_get_file_size(folder, filename, file_type, expected_size):
     ("./test_data", ""),
 ])
 def test_get_file_size_invalid_inputs(folder, filename):
+    """Test for get_file_size with invalid inputs."""
     with pytest.raises(ValueError):
         fileutils.get_file_size(folder, filename)
 
 
-# test get_file_size with non-existing file
 def test_get_file_size_non_existing_file():
+    """Test for get_file_size with non-existing file."""
     with pytest.raises(FileNotFoundError):
-        fileutils.get_file_size("./test_data", "non_existing_file.txt")
+        fileutils.get_file_size(
+            folder="./test_data",
+            filename="non_existing_file.txt"
+        )
 
 
-# test get_last_modified
 @pytest.mark.parametrize("folder, filename, file_type", [
     ("./test_data", "existing_file.txt", None),
     ("./test_data", "existing_file", FileType.TXT),
 ])
 def test_get_last_modified(folder, filename, file_type):
-    assert isinstance(fileutils.get_last_modified(folder, filename, file_type),
-                      datetime)
+    """Test for get_last_modified."""
+    last_modified = fileutils.get_last_modified(folder, filename, file_type)
+    assert isinstance(last_modified, datetime)
 
 
-# test get_last_modified with invalid inputs
 @pytest.mark.parametrize("folder, filename", [
     (None, "existing_file.txt"),
     ("", "existing_file.txt"),
@@ -269,27 +282,34 @@ def test_get_last_modified(folder, filename, file_type):
     ("./test_data", ""),
 ])
 def test_get_last_modified_invalid_inputs(folder, filename):
+    """Test for get_last_modified with invalid inputs."""
     with pytest.raises(ValueError):
         fileutils.get_last_modified(folder, filename)
 
 
-# test get_last_modified with non-existing file
 def test_get_last_modified_non_existing_file():
-    assert fileutils.get_last_modified("./test_data",
-                                       "non_existing_file.txt") is None
+    """Test for get_last_modified with non-existing file."""
+    assert fileutils.get_last_modified(
+        folder="./test_data",
+        filename="non_existing_file.txt"
+    ) is None
 
 
-# test validate_file_type
-@pytest.mark.parametrize("folder, filename, expected_type, expected", [
+@pytest.mark.parametrize("folder, fname, exp_type, expected", [
     ("/tmp", "valid_json.json", FileType.JSON, None),
     ("/tmp", "invalid_json.json", FileType.JSON, "Invalid JSON file"),
     ("/tmp", "file.txt", FileType.TXT, "Invalid Text file"),
 ])
-def test_validate_file_type(tmpdir, folder, filename, expected_type, expected):
+def test_validate_file_type(tmpdir, folder, fname, exp_type, expected):
+    """Test for validate_file_type."""
     tmpdir.mkdir(folder)
     # Create test files in tmpdir (left as an exercise) # TODO
-    folder_path = Path(tmpdir) / folder
-    assert fileutils.validate_file_type(str(folder_path), filename, expected_type) == expected
+
+    assert fileutils.validate_file_type(
+        folder=str(Path(tmpdir) / folder),
+        filename=fname,
+        expected_type=exp_type
+    ) == expected
 
 
 def test_concatenate_files(tmpdir):
