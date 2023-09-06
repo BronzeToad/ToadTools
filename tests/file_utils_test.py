@@ -1,7 +1,7 @@
 import json
 import os
 from pathlib import Path
-from tempfile import NamedTemporaryFile
+from tempfile import NamedTemporaryFile, TemporaryDirectory
 from typing import Generator
 from unittest.mock import patch
 
@@ -90,87 +90,117 @@ def test_duplicate_file(source_folder, source_filename, dest_folder,
                                     dest_filename=dest_filename) == expected
 
 
-# test duplicate_file with invalid inputs
-@pytest.mark.parametrize("source_folder, source_filename, dest_folder", [
+@pytest.mark.parametrize("src_folder, src_fname, dest_folder", [
     (None, "source.json", "/tmp/dest"),
     ("/tmp", None, "/tmp/dest"),
     ("/tmp", "source.json", None),
 ])
-def test_duplicate_file_invalid_inputs(source_folder, source_filename,
-                                       dest_folder):
+def test_duplicate_file_invalid_inputs(src_folder, src_fname, dest_folder):
+    """Test for duplicate_file with invalid inputs."""
     with pytest.raises(ValueError):
-        fileutils.duplicate_file(source_folder, source_filename, dest_folder,
-                                 FileType.JSON)
+        fileutils.duplicate_file(
+            source_folder=src_folder,
+            source_filename=src_fname,
+            dest_folder=dest_folder,
+            file_type=FileType.JSON
+        )
 
 
-# test delete_file
 def test_delete_file(mocker):
-    with tempfile.TemporaryDirectory() as tmpdir:
+    """Test for delete_file."""
+    with TemporaryDirectory() as tmpdir:
         test_file_path = Path(tmpdir) / "test.txt"
         test_file_path.touch()
         mocker.patch('builtins.input', return_value='y')
-        result = fileutils.delete_file(tmpdir, "test", FileType.TXT,
-                                       require_confirmation=True)
+
+        result = fileutils.delete_file(
+            folder=tmpdir,
+            filename="test",
+            file_type=FileType.TXT,
+            require_confirmation=True
+        )
+
         assert result == True
         assert not test_file_path.exists()
 
 
-# test delete_file with cancel
 def test_delete_file_cancel(mocker):
-    with tempfile.TemporaryDirectory() as tmpdir:
+    """Test for delete_file with cancel."""
+    with TemporaryDirectory() as tmpdir:
         test_file_path = Path(tmpdir) / "test.txt"
         test_file_path.touch()
         mocker.patch('builtins.input', return_value='n')
-        result = fileutils.delete_file(tmpdir, "test", FileType.TXT,
-                                       require_confirmation=True)
+
+        result = fileutils.delete_file(
+            folder=tmpdir,
+            filename="test",
+            file_type=FileType.TXT,
+            require_confirmation=True
+        )
+
         assert result == False
         assert test_file_path.exists()
 
 
-# test rename_file
 def test_rename_file():
-    with tempfile.TemporaryDirectory() as tmpdir:
+    """Test for rename_file"""
+    with TemporaryDirectory() as tmpdir:
         src_file_path = Path(tmpdir) / "src.txt"
         dest_file_path = Path(tmpdir) / "dest.txt"
         src_file_path.touch()
-        result = fileutils.rename_file(tmpdir, "src", FileType.TXT,
-                                       dest_filename="dest",
-                                       dest_file_type=FileType.TXT)
+
+        result = fileutils.rename_file(
+            src_folder=tmpdir,
+            src_filename="src",
+            src_file_type=FileType.TXT,
+            dest_filename="dest",
+            dest_file_type=FileType.TXT
+        )
+
         assert result == str(dest_file_path)
         assert not src_file_path.exists()
         assert dest_file_path.exists()
 
 
-# test rename_file with overwrite=False and existing file
 def test_rename_file_no_overwrite():
-    with tempfile.TemporaryDirectory() as tmpdir:
+    """Test for rename_file with overwrite=False and existing file."""
+    with TemporaryDirectory() as tmpdir:
         src_file_path = Path(tmpdir) / "src.txt"
         dest_file_path = Path(tmpdir) / "dest.txt"
         src_file_path.touch()
         dest_file_path.touch()
         with pytest.raises(FileExistsError):
-            fileutils.rename_file(tmpdir, "src", FileType.TXT,
-                                  dest_filename="dest",
-                                  dest_file_type=FileType.TXT)
+            fileutils.rename_file(
+                src_folder=tmpdir,
+                src_filename="src",
+                src_file_type=FileType.TXT,
+                dest_filename="dest",
+                dest_file_type=FileType.TXT
+            )
 
 
-# test rename_file with overwrite=True and existing file
 def test_rename_file_with_overwrite():
-    with tempfile.TemporaryDirectory() as tmpdir:
+    """Test for rename_file with overwrite=True and existing file."""
+    with TemporaryDirectory() as tmpdir:
         src_file_path = Path(tmpdir) / "src.txt"
         dest_file_path = Path(tmpdir) / "dest.txt"
         src_file_path.touch()
         dest_file_path.touch()
-        result = fileutils.rename_file(tmpdir, "src", FileType.TXT,
-                                       dest_filename="dest",
-                                       dest_file_type=FileType.TXT,
-                                       overwrite=True)
+
+        result = fileutils.rename_file(
+            src_folder=tmpdir,
+            src_filename="src",
+            src_file_type=FileType.TXT,
+            dest_filename="dest",
+            dest_file_type=FileType.TXT,
+            overwrite=True
+        )
+
         assert result == str(dest_file_path)
         assert not src_file_path.exists()
         assert dest_file_path.exists()
 
 
-# test ensure_directory_exists
 @pytest.mark.parametrize("folder, flag, expected", [
     ("existing_folder", True, "existing_folder"),
     ("existing_folder", False, "existing_folder"),
@@ -178,14 +208,17 @@ def test_rename_file_with_overwrite():
     ("non_existent_folder", False, None),
 ])
 def test_ensure_directory_exists(folder, flag, expected):
+    """Test for ensure_directory_exists."""
     if expected is not None:
         assert fileutils.ensure_directory_exists(
             folder=folder,
             create_if_missing=flag
         ) == expected
     else:
-        assert fileutils.ensure_directory_exists(folder,
-                                                 create_if_missing) is None
+        assert fileutils.ensure_directory_exists(
+            folder=folder,
+            create_if_missing=flag
+        ) is None
 
 
 @pytest.mark.parametrize("folder", [
