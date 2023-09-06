@@ -1,38 +1,38 @@
 import json
 import os
+import time
+from datetime import datetime
 from pathlib import Path
 from tempfile import NamedTemporaryFile, TemporaryDirectory
 from typing import Generator
 from unittest.mock import patch
 
 import pytest
+
 import src.file_utils as fileutils
 from src.enum_hatchery import ChecksumType, FileCheckType, FileType, OperationType, SerializationType
-import time
-from datetime import datetime
 
 
 # =========================================================================== #
 
-# test get_file_type_map
 def test_get_file_type_map():
+    """Test for get_file_type_map."""
     file_type_map = fileutils.get_file_type_map()
     assert isinstance(file_type_map, dict)
     assert FileType.JSON in file_type_map
     assert file_type_map[FileType.JSON][0] == 'r'
 
 
-# test check_filepath
 @pytest.mark.parametrize("filepath, check_type, expected_exception", [
     ("existing_file.txt", FileCheckType.EXISTS, FileExistsError),
     ("non_existent_file.txt", FileCheckType.NOT_FOUND, FileNotFoundError),
 ])
 def test_check_filepath(filepath, check_type, expected_exception):
+    """Test for check_filepath."""
     with pytest.raises(expected_exception):
         fileutils.check_filepath(Path(filepath), check_type)
 
 
-# test force_extension
 @pytest.mark.parametrize("filename, extension, expected", [
     ("file.txt", ".TXT", "file.TXT"),
     ("file", "txt", "file.txt"),
@@ -40,10 +40,10 @@ def test_check_filepath(filepath, check_type, expected_exception):
     ("file.txt", ".jpg", "file.jpg"),
 ])
 def test_force_extension(filename, extension, expected):
+    """Test for force_extension."""
     assert fileutils.force_extension(filename, extension) == expected
 
 
-# test force_extension with invalid inputs
 @pytest.mark.parametrize("filename, extension", [
     (None, "txt"),
     ("", "txt"),
@@ -51,43 +51,52 @@ def test_force_extension(filename, extension, expected):
     ("file.txt", ""),
 ])
 def test_force_extension_invalid_inputs(filename, extension):
+    """Test for force_extension with invalid inputs."""
     with pytest.raises(ValueError):
         fileutils.force_extension(filename, extension)
 
 
-# test get_file
-@pytest.mark.parametrize("folder, filename, file_type, find_replace, expected", [
+@pytest.mark.parametrize("folder, fname, file_type, find_replace, expected", [
     ("/tmp", "test.json", FileType.JSON, None, {
         "key": "value"}),
     ("/tmp", "test.html", FileType.HTML, {
         "<title>": "<heading>"}, "<heading>Test</heading>"),
     # Add more scenarios based on your specific requirements    # TODO
 ])
-def test_get_file(folder, filename, file_type, find_replace, expected):
-    assert fileutils.get_file(folder, filename, file_type, find_replace=find_replace) == expected
+def test_get_file(folder, fname, file_type, find_replace, expected):
+    """Test for get_file."""
+    assert fileutils.get_file(
+        folder=folder,
+        filename=fname,
+        file_type=file_type,
+        find_replace=find_replace
+    ) == expected
 
 
-# test get_file with invalid inputs
 @pytest.mark.parametrize("folder, filename", [
     (None, "test.json"),
     ("/tmp", None),
 ])
 def test_get_file_invalid_inputs(folder, filename):
+    """Test for get_file with invalid inputs."""
     with pytest.raises(ValueError):
         fileutils.get_file(folder, filename, FileType.JSON)
 
 
-# test duplicate_file
-@pytest.mark.parametrize("source_folder, source_filename, dest_folder, file_type, dest_filename, expected", [
+@pytest.mark.parametrize("src_folder, src_fname, dest_folder, file_type, dest_fname, expected", [
     ("/tmp", "source.json", "/tmp/dest", FileType.JSON, None, "/tmp/dest/source.json"),
     ("/tmp", "source.html", "/tmp/dest", FileType.HTML, "dest.html", "/tmp/dest/dest.html"),
     # Add more scenarios based on your specific requirements    # TODO
 ])
-def test_duplicate_file(source_folder, source_filename, dest_folder,
-                        file_type, dest_filename, expected):
-    assert fileutils.duplicate_file(source_folder, source_filename,
-                                    dest_folder, file_type,
-                                    dest_filename=dest_filename) == expected
+def test_duplicate_file(src_folder, src_fname, dest_folder, file_type, dest_fname, expected):
+    """Test for duplicate_file."""
+    assert fileutils.duplicate_file(
+        source_folder=src_folder,
+        source_filename=src_fname,
+        dest_folder=dest_folder,
+        file_type=file_type,
+        dest_filename=dest_fname
+    ) == expected
 
 
 @pytest.mark.parametrize("src_folder, src_fname, dest_folder", [
