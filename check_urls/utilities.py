@@ -76,7 +76,7 @@ def save_results_to_json(
     # Update or add new records
     for item in data:
         for existing_item in existing_data:
-            if item['host'] == existing_item['host']:
+            if item['name'] == existing_item['name']:
                 existing_item.update(item)
                 break
         else:
@@ -89,4 +89,24 @@ def save_results_to_json(
 # =========================================================================== #
 
 if __name__ == '__main__':
-    pass
+    # Test get_config_val function
+    print("Testing get_config_val:")
+    print(get_config_val('Main', 'ROOT'))
+
+    # Test mash_list_strings function
+    print("\nTesting mash_list_strings:")
+    print(mash_list_strings(['a', 'b'], ['1', '2']))
+
+    # Test combine_lists function
+    print("\nTesting combine_lists:")
+    print(combine_lists(['a', 'b'], ['c'], ['a', 'd']))
+
+    # Test save_results_to_json function (assuming you have data to save)
+    print("\nTesting save_results_to_json:")
+    sample_data = [
+        {'name': 'FakeNameAlpha', 'FakeNameAlpha.com': True},
+        {'name': 'FakeNameBravo', 'FakeNameBravo.com': False}
+    ]
+    save_results_to_json(sample_data, 'test_output.json')
+    print("Check 'test_output.json' to see if data is saved correctly.")
+
