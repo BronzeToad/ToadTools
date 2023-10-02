@@ -164,4 +164,4 @@ cython_debug/
 #.idea/
 .DS_Store
 notes.txt
-check_urls/secrets.ini
+check_urls/configs/secrets.ini
