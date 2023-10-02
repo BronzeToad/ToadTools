@@ -1,5 +1,6 @@
 import configparser
 import json
+import os
 from enum import Enum, auto
 from itertools import chain
 from typing import Dict, List, Optional, Union
@@ -23,17 +24,13 @@ class ConfigType(Enum):
 def get_config_val(
     section: str,
     key: str,
-    config_type: Optional[ConfigType] = None,
+    config_type: Optional[ConfigType] = ConfigType.MAIN,
 ) -> Union[str, int, float]:
     """Retrieve and convert a value from .ini config file."""
-    if config_type is not None:
-        config_filename = config_type.value
-    else:
-        config_filename = ConfigType.MAIN.value
-
-    config = configparser.ConfigParser()
-    config.read(config_filename)
-    val = config.get(section, key)
+    config_path = os.path.join('cfg', config_type.value)
+    ConfigParser = configparser.ConfigParser()
+    ConfigParser.read(config_path)
+    val = ConfigParser.get(section, key)
 
     try:
         return int(val)
