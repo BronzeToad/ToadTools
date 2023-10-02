@@ -198,7 +198,6 @@ def get_file(
 
     standardized_filename = force_extension(filename, file_type.name.lower())
     filepath = Path(folder) / standardized_filename
-    check_filepath(filepath, FileCheckType.EXISTS)
 
     file_type_map = get_file_type_map()
 
