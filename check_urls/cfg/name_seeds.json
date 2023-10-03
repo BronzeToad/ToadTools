@@ -3,9 +3,8 @@
     "key": "celtic_mythology",
     "position": null,
     "items": [
-      "Lugh", "Brigid", "Dagda", "Morrigan", "Cernunnos", "Arawn", "Rhiannon",
-      "Belenus", "Epona", "Manannan", "Nodens", "Ogma", "Badb", "Macha", "Nemain",
-      "Fand", "Goibniu", "Lir", "Boann", "Danu", "Taranis", "Camulus", "Sucellos",
+      "Lugh", "Brigid", "Dagda", "Morrigan", "Cernunnos", "Arawn", "Rhiannon", "Belenus", "Epona", "Manannan", "Nodens",
+      "Ogma", "Badb", "Macha", "Nemain", "Fand", "Goibniu", "Lir", "Boann", "Danu", "Taranis", "Camulus", "Sucellos",
       "Eriu", "Bile"
     ]
   },
@@ -13,166 +12,142 @@
     "key": "egyptian_mythology",
     "position": null,
     "items": [
-      "Ra", "Isis", "Osiris", "Set", "Anubis", "Horus", "Thoth", "Bastet",
-      "Maat", "Hathor", "Sobek", "Ptah", "Sekhmet", "Nephthys", "Geb", "Nut",
-      "Shu", "Tefnut", "Apep", "Atum", "Khepri", "Khnum", "Amun", "Hapi", "Mafdet"
+      "Ra", "Isis", "Osiris", "Set", "Anubis", "Horus", "Thoth", "Bastet", "Maat", "Hathor", "Sobek", "Ptah", "Sekhmet",
+      "Nephthys", "Geb", "Nut", "Shu", "Tefnut", "Apep", "Atum", "Khepri", "Khnum", "Amun", "Hapi", "Mafdet"
     ]
   },
   {
     "key": "greek_mythology",
     "position": null,
     "items": [
-      "Zeus", "Hera", "Ares", "Hades", "Echo", "Eros", "Gaia", "Titan", "Atlas",
-      "Apollo", "Nyx", "Maia", "Helios", "Iris", "Nike", "Pan", "Rhea", "Themis",
-      "Zephyr", "Clio", "Selene", "Hybris", "Kratos", "Eos", "Styx"
+      "Zeus", "Hera", "Ares", "Hades", "Echo", "Eros", "Gaia", "Titan", "Atlas", "Apollo", "Nyx", "Maia", "Helios",
+      "Iris", "Nike", "Pan", "Rhea", "Themis", "Zephyr", "Clio", "Selene", "Hybris", "Kratos", "Eos", "Styx"
     ]
   },
   {
     "key": "japanese_mythology",
     "position": null,
     "items": [
-      "Amaterasu", "Izanagi", "Izanami", "Susanoo", "Tsukuyomi", "Raijin",
-      "Fujin", "Inari", "Hachiman", "Benzaiten", "Bishamon", "Ebisu", "Daikoku",
-      "Jurojin", "Kappa", "Tengu", "Oni", "Kami", "Nue", "Kitsune", "Ryujin",
-      "Tanuki", "Uzume", "Suijin", "Yamauba"
+      "Amaterasu", "Izanagi", "Izanami", "Susanoo", "Tsukuyomi", "Raijin", "Fujin", "Inari", "Hachiman", "Benzaiten",
+      "Bishamon", "Ebisu", "Daikoku", "Jurojin", "Kappa", "Tengu", "Oni", "Kami", "Nue", "Kitsune", "Ryujin", "Tanuki",
+      "Uzume", "Suijin", "Yamauba"
     ]
   },
   {
     "key": "norse_mythology",
     "position": null,
     "items": [
-      "Thor", "Odin", "Loki", "Freyr", "Tyr", "Njord", "Baldr", "Frigg", "Skadi",
-      "Ymir", "Fenrir", "Hel", "Sif", "Bragi", "Runes", "Sigyn", "Ullr",
-      "Heimdall", "Fjord", "Valkyrie", "Surtr", "Ginnungagap", "Mjolnir",
-      "Norns", "Sleipnir"
+      "Thor", "Odin", "Loki", "Freyr", "Tyr", "Njord", "Baldr", "Frigg", "Skadi", "Ymir", "Fenrir", "Hel", "Sif",
+      "Bragi", "Runes", "Sigyn", "Ullr", "Heimdall", "Fjord", "Valkyrie", "Surtr", "Ginnungagap", "Mjolnir", "Norns"
     ]
   },
   {
     "key": "dungeons_and_dragons",
     "position": "end",
     "items": [
-      "Orc", "Elf", "Lich", "Gnoll", "Beholder", "Druid", "Minotaur", "Goblin",
-      "Troll", "Wight", "Mimic", "Rogue", "Dwarf", "Kobold", "Dragon", "Ogre",
-      "Nymph", "Harpy", "Bard", "Cleric", "Warlock", "Sorcerer", "Giant", "Pixie",
-      "Ghoul", "Bugbear", "Owlbear", "Gelatinous Cube", "Drow", "Githyanki",
-      "Mindflayer", "Rakshasa", "Kenku", "Aboleth", "Lizardfolk", "Yuan-ti",
-      "Otyugh", "Rust Monster", "Stirge", "Tarrasque", "Xorn", "Nothic", "Flumph"
+      "Orc", "Elf", "Lich", "Gnoll", "Beholder", "Druid", "Minotaur", "Goblin", "Troll", "Wight", "Mimic", "Rogue",
+      "Dwarf", "Kobold", "Dragon", "Ogre", "Harpy", "Bard", "Warlock", "Sorcerer", "Giant", "Ghoul", "Bugbear",
+      "Owlbear", "Drow", "Gargoyle", "Golem", "Hobgoblin", "Rakshasa", "Kenku", "Aboleth", "Tarrasque", "Xorn",
+      "Nothic", "Flumph"
     ]
   },
   {
     "key": "fantasy",
     "position": "end",
     "items": [
-      "Elf", "Orc", "Ring", "Wand", "Goblin", "Troll", "Druid", "Minotaur",
-      "Wizard", "Sorceress", "Witch", "Staff", "Rune", "Sword", "Shield",
-      "Wight", "Necromancer", "Knight", "Warrior", "Paladin", "Muggle", "Potion",
-      "Enchant", "Quest", "Mage", "Amulet", "Chalice"
+      "Elf", "Orc", "Ring", "Wand", "Goblin", "Troll", "Druid", "Minotaur", "Wizard", "Sorceress", "Witch", "Staff",
+      "Rune", "Sword", "Shield", "Wight", "Necromancer", "Knight", "Warrior", "Paladin", "Muggle", "Potion", "Enchant",
+      "Quest", "Mage", "Amulet", "Chalice"
     ]
   },
   {
     "key": "mythical_creatures",
     "position": "end",
     "items": [
-      "Elf", "Nymph", "Fawn", "Ogre", "Troll", "Satyr", "Sylph", "Wyrm", "Jinn",
-      "Banshee", "Wight", "Sprite", "Imp", "Gnome", "Fey", "Shade", "Siren",
-      "Pixie", "Harpy", "Muse", "Wisp", "Faun", "Drake", "Ork", "Naga", "Griffin",
-      "Phoenix", "Chimera", "Minotaur", "Basilisk", "Hydra", "Dragon", "Sphinx",
-      "Gorgon", "Cyclops", "Centaur", "Mermaid", "Golem", "Djinn", "Manticore",
-      "Kraken", "Wendigo", "Yeti"
+      "Elf", "Fawn", "Ogre", "Troll", "Satyr", "Sylph", "Wyrm", "Jinn", "Banshee", "Wight", "Sprite", "Imp", "Gnome",
+      "Shade", "Siren", "Harpy", "Muse", "Wisp", "Faun", "Drake", "Ork", "Naga", "Griffin", "Phoenix", "Chimera",
+      "Minotaur", "Basilisk", "Hydra", "Dragon", "Sphinx", "Gorgon", "Cyclops", "Centaur", "Mermaid", "Golem", "Djinn",
+      "Manticore", "Kraken", "Wendigo", "Yeti"
     ]
   },
   {
     "key": "science_fiction",
     "position": "start_end",
     "items": [
-      "Droid", "Alien", "Warp", "Clone", "Blaster", "Tron", "Blade", "Cyborg",
-      "Laser", "Spaceship", "Xeno", "Cruiser", "Portal", "Galaxy", "Satellite",
-      "Phaser", "Future", "Android", "Time", "Robot", "Universe", "Hive", "Moon",
-      "Meteor", "Star", "Tech", "Nano", "Holo", "Matrix", "Virtual"
+      "Droid", "Alien", "Warp", "Clone", "Blaster", "Tron", "Blade", "Cyborg", "Laser", "Spaceship", "Xeno", "Cruiser",
+      "Portal", "Galaxy", "Satellite", "Phaser", "Future", "Android", "Time", "Robot", "Universe", "Hive", "Moon",
+      "Meteor", "Star", "Tech", "Nano", "Holo", "Matrix"
     ]
   },
   {
     "key": "birds",
     "position": "end",
     "items": [
-      "Jay", "Rook", "Kiwi", "Crow", "Dove", "Lark", "Swan", "Crane", "Kite",
-      "Hawk", "Finch", "Emu", "Ostrich", "Egret", "Ibis", "Fowl", "Gull", "Quail",
-      "Puffin", "Drake", "Hen", "Pigeon", "Stork", "Swift", "Tit", "Falcon",
-      "Owl", "Robin", "Swallow", "Heron", "Parrot", "Raven", "Sparrow", "Magpie",
-      "Pelican", "Flamingo", "Seagull", "Osprey", "Vulture", "Peacock",
-      "Parakeet", "Pheasant", "Canary"
+      "Jay", "Rook", "Kiwi", "Crow", "Dove", "Lark", "Swan", "Crane", "Kite", "Hawk", "Finch", "Emu", "Ostrich",
+      "Egret", "Ibis", "Fowl", "Gull", "Quail", "Puffin", "Drake", "Hen", "Pigeon", "Stork", "Swift", "Tit", "Falcon",
+      "Owl", "Robin", "Swallow", "Heron", "Parrot", "Raven", "Sparrow", "Magpie", "Pelican", "Flamingo", "Seagull",
+      "Osprey", "Vulture", "Peacock", "Parakeet", "Pheasant", "Canary"
     ]
   },
   {
     "key": "bugs",
     "position": "end",
     "items": [
-      "Ant", "Moth", "Mite", "Tick", "Bee", "Fly", "Louse", "Wasp", "Midge",
-      "Gnat", "Flea", "Beetle", "Rove", "Weevil", "Larva", "Aphid", "Thrip", 
-      "Borer", "Worm", "Maggot", "Bedbug", "Silk", "Termite", "Hopper", "Cicada", 
-      "Mantis", "Spider", "Butterfly", "Dragonfly", "Grasshopper", "Ladybug", 
-      "Cricket", "Firefly", "Cockroach", "Silverfish", "Weevil"
+      "Ant", "Moth", "Mite", "Tick", "Bee", "Fly", "Louse", "Wasp", "Midge", "Gnat", "Flea", "Beetle", "Rove",
+      "Weevil", "Larva", "Aphid", "Thrip", "Borer", "Worm", "Maggot", "Bedbug", "Silk", "Termite", "Hopper",
+      "Cicada", "Mantis", "Spider", "Butterfly", "Dragonfly", "Grasshopper", "Ladybug", "Cricket", "Firefly",
+      "Cockroach", "Weevil"
     ]
   },
   {
     "key": "mammals",
     "position": "end",
     "items": [
-      "Lion", "Bear", "Whale", "Fox", "Deer", "Mole", "Rat", "Wolf", "Mink", 
-      "Boar", "Seal", "Lynx", "Ram", "Moose", "Hare", "Puma", "Bat", "Shrew", 
-      "Horse", "Sloth", "Ape", "Otter", "Hedgehog", "Weasel", "Gnu", "Dolphin", 
-      "Bison", "Elk", "Hawk", "Goat", "Tiger", "Rabbit", "Monkey", "Elephant", 
-      "Zebra", "Kangaroo", "Koala", "Beaver"
+      "Lion", "Bear", "Whale", "Fox", "Deer", "Mole", "Rat", "Wolf", "Mink", "Boar", "Seal", "Lynx", "Ram", "Moose",
+      "Hare", "Puma", "Bat", "Shrew", "Horse", "Sloth", "Ape", "Otter", "Hedgehog", "Weasel", "Gnu", "Dolphin",
+      "Bison", "Elk", "Hawk", "Goat", "Tiger", "Rabbit", "Monkey", "Elephant", "Zebra", "Kangaroo", "Koala", "Buffalo"
     ]
   },
   {
     "key": "other_animals",
     "position": "end",
     "items": [
-      "Lion", "Shark", "Lynx", "Coyote", "Eel", "Boar", "Koi", "Vole", "Moose",
-      "Pike", "Tuna", "Crab", "Snail", "Skunk", "Rat", "Goat", "Elk", "Seal",
-      "Squid", "Newt", "Toad", "Lemur", "Orca", "Swan", "Mule", "Lizard", 
-      "Tortoise", "Cobra", "Salmon", "Frog", "Alligator", "Cheetah", "Python", 
-      "Tarantula", "Piranha", "Seahorse", "Jellyfish", "Gecko", "Stingray", 
-      "Platypus", "Hippo", "Lobster", "Walrus", "Armadillo", "Chameleon", 
-      "Angelfish"
+      "Lion", "Shark", "Lynx", "Coyote", "Eel", "Boar", "Koi", "Vole", "Moose", "Pike", "Tuna", "Crab", "Snail", "Rat",
+      "Goat", "Elk", "Seal", "Squid", "Newt", "Toad", "Lemur", "Orca", "Swan", "Mule", "Lizard", "Tortoise", "Cobra",
+      "Salmon", "Frog", "Alligator", "Cheetah", "Python", "Tarantula", "Piranha", "Seahorse", "Jellyfish", "Gecko",
+      "Stingray", "Platypus", "Hippo", "Lobster", "Walrus", "Armadillo", "Chameleon"
     ]
   },
   {
     "key": "reptiles_and_amphibians",
     "position": "end",
     "items": [
-      "Frog", "Lizard", "Gecko", "Toad", "Newt", "Python", "Viper", "Turtle", 
-      "Salam", "Eft", "Iguana", "Adder", "Skink", "Tort", "Croc", "Anaconda", 
-      "Boa", "Cham", "Cobra", "Serpent", "Gator", "Mamba", "Gecko", "Rattler", 
-      "Gila"
+      "Frog", "Lizard", "Gecko", "Toad", "Newt", "Python", "Viper", "Turtle", "Salam", "Eft", "Iguana", "Adder",
+      "Skink", "Tort", "Croc", "Anaconda", "Boa", "Cham", "Cobra", "Serpent", "Gator", "Mamba", "Gecko", "Gila"
     ]
   },
   {
     "key": "underwater_animals",
     "position": "end",
     "items": [
-      "Shark", "Whale", "Eel", "Ray", "Krill", "Coral", "Orca", "Tuna", "Koi", 
-      "Jelly", "Squid", "Manta", "Bream", "Trout", "Carp", "Prawn", "Crab", "Lob", 
-      "Octo", "Snail", "Pike", "Seal", "Clam", "Conch", "Urchin"
+      "Shark", "Whale", "Eel", "Ray", "Krill", "Coral", "Orca", "Tuna", "Koi", "Jelly", "Squid", "Manta", "Bream",
+      "Trout", "Carp", "Prawn", "Crab", "Lob", "Octo", "Snail", "Pike", "Seal", "Clam", "Conch", "Urchin"
     ]
   },
   {
     "key": "botanical",
     "position": "start_end",
     "items": [
-      "Fern", "Ivy", "Pine", "Aloe", "Lily", "Birch", "Rose", "Tulip", "Moss", 
-      "Vine", "Reed", "Spruce", "Cedar", "Yew", "Fig", "Elm", "Maple", "Oak", 
-      "Alder", "Aspen", "Pear", "Bloom", "Petal", "Mint", "Bud"
+      "Fern", "Ivy", "Pine", "Aloe", "Lily", "Birch", "Rose", "Tulip", "Moss", "Vine", "Reed", "Spruce", "Cedar",
+      "Yew", "Fig", "Elm", "Maple", "Oak", "Alder", "Aspen", "Pear", "Bloom", "Petal", "Mint", "Bud"
     ]
   },
   {
     "key": "gemstones",
     "position": "start_end",
     "items": [
-      "Ruby", "Opal", "Onyx", "Jade", "Pearl", "Quartz", "Topaz", "Amber", 
-      "Beryl", "Jasper", "Coral", "Agate", "Sapphire", "Emerald", "Garnet", 
-      "Lapis", "Moonstone", "Zircon", "Peridot", "Iolite", "Tanzanite", "Spinel", 
+      "Ruby", "Opal", "Onyx", "Jade", "Pearl", "Quartz", "Topaz", "Amber", "Beryl", "Jasper", "Coral", "Agate",
+      "Sapphire", "Emerald", "Garnet", "Lapis", "Moonstone", "Zircon", "Peridot", "Iolite", "Tanzanite", "Spinel",
       "Tourmaline", "Citrine", "Diamond"
     ]
   },
@@ -180,99 +155,85 @@
     "key": "materials",
     "position": "start_end",
     "items": [
-      "Silk", "Hemp", "Jute", "Bronze", "Flint", "Straw", "Burlap", "Tin", "Oak", 
-      "Pine", "Bamboo", "Cork", "Nylon", "Zinc", "Clay", "Steel", "Brass", "Lead", 
-      "Twill", "Glass", "Wool", "Satin", "Latex", "Rubber", "Wax", "Brick", 
-      "Plastic", "Granite", "Leather", "Cotton", "Marble", "Vinyl", "Iron", 
-      "Ceramic", "Denim", "Titanium", "Plaster", "Quartz", "Velvet", "Plywood", 
-      "Stone"
+      "Silk", "Hemp", "Jute", "Bronze", "Flint", "Straw", "Burlap", "Tin", "Oak", "Pine", "Bamboo", "Cork", "Nylon",
+      "Zinc", "Clay", "Steel", "Brass", "Lead", "Twill", "Glass", "Wool", "Satin", "Latex", "Rubber", "Wax", "Brick",
+      "Granite", "Leather", "Cotton", "Marble", "Vinyl", "Iron", "Ceramic", "Denim", "Titanium", "Plaster", "Quartz",
+      "Velvet", "Stone"
     ]
   },
   {
     "key": "musical_instruments",
     "position": "end",
     "items": [
-      "Flute", "Harp", "Drum", "Fife", "Lute", "Lyre", "Oboe", "Piano", "Zither", 
-      "Bass", "Fiddle", "Guitar", "Trumpet", "Viola", "Sitar", "Banjo", 
-      "Clarinet", "Bell", "Horn", "Tuba", "Uke", "Organ", "Pipe", "Viol", "Mando"
+      "Flute", "Harp", "Drum", "Fife", "Lute", "Lyre", "Oboe", "Piano", "Zither", "Bass", "Fiddle", "Guitar",
+      "Trumpet", "Viola", "Sitar", "Banjo", "Clarinet", "Bell", "Horn", "Tuba", "Uke", "Organ", "Pipe", "Viol", "Mando"
     ]
   },
   {
     "key": "natural_things",
     "position": "start_end",
     "items": [
-      "Dew", "Leaf", "Rock", "Hill", "Mist", "Clay", "Soil", "Frost", "Cloud", 
-      "Rain", "Sleet", "Flame", "Moss", "Shore", "Cave", "Wave", "Tide", "Wind", 
-      "Moon", "Star", "Stream", "Bud", "Sand", "Snow", "Tree", "Oak", "River", 
-      "Glacier", "Mountain", "Forest", "Desert", "Lava", "Sun", "Earth", "Dusk", 
-      "Dawn", "Thunder", "Ice", "Lake", "Meadow", "Canyon"
+      "Dew", "Leaf", "Rock", "Hill", "Mist", "Clay", "Soil", "Frost", "Cloud", "Rain", "Sleet", "Flame", "Moss",
+      "Shore", "Cave", "Wave", "Tide", "Wind", "Moon", "Star", "Stream", "Bud", "Sand", "Snow", "Tree", "Oak",
+      "River", "Glacier", "Mountain", "Forest", "Desert", "Lava", "Sun", "Earth", "Dusk", "Dawn", "Thunder", "Ice",
+      "Lake", "Meadow", "Canyon"
     ]
   },
   {
     "key": "tools_and_instruments",
     "position": "end",
     "items": [
-      "Hammer", "Saw", "Vise", "Drill", "Chisel", "Level", "Ruler", "Wrench", 
-      "Mallet", "Clamp", "Awl", "Plier", "Anvil", "Lathe", "Grind", "Screw", 
-      "Cutter", "File", "Trowel", "Hoe", "Rake", "Gauge", "Ax", "Knife", "Pick"
+      "Hammer", "Saw", "Vise", "Drill", "Chisel", "Level", "Ruler", "Wrench", "Mallet", "Clamp", "Awl", "Plier",
+      "Anvil", "Lathe", "Grind", "Screw", "Cutter", "File", "Trowel", "Hoe", "Rake", "Gauge", "Ax", "Knife", "Pick"
     ]
   },
   {
     "key": "architectural_terms",
     "position": "start_end",
     "items": [
-      "Arch", "Dome", "Vault", "Nave", "Lintel", "Gable", "Flute", "Cusp", 
-      "Spire", "Bezel", "Pier", "Rood", "Turret", "Mullion", "Plinth", "Quoin", 
-      "Soffit", "Truss", "Frieze", "Cant", "Fenestra", "Hearth", "Pediment", 
-      "Lunette", "Colonnade"
+      "Arch", "Dome", "Vault", "Nave", "Lintel", "Gable", "Flute", "Cusp", "Spire", "Bezel", "Pier", "Rood", "Turret",
+      "Mullion", "Plinth", "Quoin", "Soffit", "Truss", "Frieze", "Fenestra", "Hearth", "Pediment"
     ]
   },
   {
     "key": "astronomy_and_space",
     "position": "start_end",
     "items": [
-      "Mars", "Luna", "Nebula", "Vega", "Orion", "Pulsar", "Quasar", "Nova", 
-      "Ceres", "Pluto", "Comet", "Meteor", "Venus", "Saturn", "Io", "Titan", 
-      "Europa", "Dwarf", "Ursa", "Star", "Milky", "Pole", "Wormhole", "Void", 
-      "Helix"
+      "Mars", "Luna", "Nebula", "Vega", "Orion", "Pulsar", "Quasar", "Nova", "Ceres", "Pluto", "Comet", "Meteor",
+      "Venus", "Saturn", "Io", "Titan", "Europa", "Dwarf", "Ursa", "Star", "Milky", "Pole", "Wormhole", "Void", "Helix"
     ]
   },
   {
     "key": "colors",
     "position": "start",
     "items": [
-      "Red", "Blue", "Gold", "Pink", "Gray", "Tan", "Lime", "Teal", "Navy", 
-      "Cyan", "Ruby", "Olive", "Jade", "Coral", "Amber", "Rose", "Taupe", "Plum", 
-      "Peach", "Bronze", "Mint", "Slate", "Cream", "Azure", "Umber", "Onyx", 
-      "Topaz", "Silver", "Pewter", "Obsidian", "Garnet", "Cobalt", "Copper", 
-      "Emerald", "Violet", "Maroon"
+      "Red", "Blue", "Gold", "Pink", "Gray", "Tan", "Lime", "Teal", "Navy", "Cyan", "Ruby", "Olive", "Jade", "Coral",
+      "Amber", "Rose", "Taupe", "Plum", "Peach", "Bronze", "Mint", "Slate", "Cream", "Azure", "Umber", "Onyx", "Topaz",
+      "Silver", "Pewter", "Obsidian", "Garnet", "Cobalt", "Copper", "Emerald", "Violet", "Maroon"
     ]
   },
   {
     "key": "geographical_landforms",
     "position": "end",
     "items": [
-      "Delta", "Mesa", "Canyon", "Peak", "Dune", "Valley", "Glacier", "Plateau", 
-      "Isle", "Cave", "Hill", "Fjord", "Bay", "Gulf", "Strait", "Butte", "Bight", 
-      "Lagoon", "Knoll", "Crest", "Arch", "Bench", "Cliff", "Tarn", "Crater"
+      "Delta", "Mesa", "Canyon", "Peak", "Dune", "Valley", "Glacier", "Plateau", "Isle", "Cave", "Hill", "Fjord", "Bay",
+      "Gulf", "Strait", "Butte", "Bight", "Lagoon", "Knoll", "Crest", "Arch", "Bench", "Cliff", "Tarn", "Crater"
     ]
   },
   {
     "key": "math_and_science_terms",
     "position": "start_end",
     "items": [
-      "Atom", "Quark", "Cell", "Gene", "Node", "Ion", "Mole", "Orbit", "Axis", 
-      "Base", "Ray", "Watt", "Volt", "Ohm", "Mute", "Lens", "Wedge", "Pulse", 
-      "Hertz", "Force", "Mass", "Void", "Nucleus", "Bolt", "Wave"
+      "Atom", "Quark", "Cell", "Gene", "Node", "Ion", "Mole", "Orbit", "Axis", "Base", "Ray", "Watt", "Volt", "Ohm",
+      "Mute", "Lens", "Wedge", "Pulse", "Hertz", "Force", "Mass", "Void", "Nucleus", "Bolt", "Wave"
     ]
   },
   {
     "key": "medieval_terms",
     "position": "end",
     "items": [
-      "Squire", "Flail", "Mote", "Keep", "Vassal", "Melee", "Turret", "Lance", 
-      "Hauberk", "Plague", "Groat", "Mace", "Banner", "Forge", "Throne", "Rook", 
-      "Fief", "Serf", "Chainmail", "Helm", "Scepter", "Pike", "Goblet", "Steed", 
+      "Squire", "Flail", "Mote", "Keep", "Vassal", "Melee", "Turret", "Lance", "Hauberk", "Plague", "Groat", "Mace",
+      "Banner", "Forge", "Throne", "Rook", "Fief", "Serf", "Chainmail", "Helm", "Scepter", "Pike", "Goblet", "Steed",
       "Moat"
     ]
   },
@@ -280,9 +241,9 @@
     "key": "weather_phenomena",
     "position": "start_end",
     "items": [
-      "Frost", "Hail", "Mist", "Gale", "Cloud", "Rain", "Sleet", "Snow", "Wind", 
-      "Dew", "Heat", "Fog", "Storm", "Drizzle", "Blizzard", "Zephyr", "Cyclone", 
-      "Typhoon", "Monsoon", "Dust", "Sun", "Ice", "Tornado", "Vortex", "Light"
+      "Frost", "Hail", "Mist", "Gale", "Cloud", "Rain", "Sleet", "Snow", "Wind", "Dew", "Heat", "Fog", "Storm",
+      "Drizzle", "Blizzard", "Zephyr", "Cyclone", "Typhoon", "Monsoon", "Dust", "Sun", "Ice", "Tornado", "Vortex",
+      "Light"
     ]
   }
 ]
