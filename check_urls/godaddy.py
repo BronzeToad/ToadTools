@@ -106,17 +106,6 @@ def get_domain_list(
     return domains
 
 
-def create_batches(
-    items: List[str],
-    batch_size: int
-) -> List[List[str]]:
-    """Split a list into smaller batches."""
-    batches = []
-    for i in range(0, len(items), batch_size):
-        batches.append(items[i:i + batch_size])
-    return batches
-
-
 def check_domain_list(
     batch: List[str],
     env_type: EnvType
@@ -143,7 +132,6 @@ def main(
 ) -> None:
     """Check domain availability for list of host names using GoDaddy API."""
     print("\n\nChecking domain name availability with GoDaddy API...")
-
     _env_type = env_type or EnvType.PRD
     _domain_endings = domain_endings or ['com']
     _batch_size = batch_size or get_batch_size()
@@ -151,7 +139,7 @@ def main(
     if limit is not None:
         host_names = host_names[:limit]
 
-    batches = create_batches(
+    batches = Utils.create_batches(
         items=get_domain_list(host_names, _domain_endings),
         batch_size=_batch_size
     )
@@ -172,10 +160,8 @@ def main(
         total_available += batch_available
         total_processed += len(batch)
 
-        if _env_type == EnvType.PRD:
-            Utils.save_results_to_json(json_results)
-        elif _env_type == EnvType.DEV:
-            Utils.save_results_to_json(json_results, 'test_output.json')
+        save_loc = None if _env_type == EnvType.PRD else 'test_output.json'
+        Utils.save_results_to_json(json_results, save_loc)
 
         batch_percent = 100 * batch_available // len(batch)
         total_percent = 100.0 * total_available / total_processed
@@ -199,11 +185,6 @@ if __name__ == '__main__':
     print("Testing get_domain_list function...")
     domain_list = get_domain_list(tst_host_names, tst_domain_endings)
     print(f"Domain List: {domain_list}")
-
-    # Test create_batches function
-    print("\nTesting create_batches function...")
-    batches = create_batches(domain_list, tst_batch_size)
-    print(f"Batches: {batches}")
 
     # Test check_godaddy_domain function
     print("\nTesting check_godaddy_domain function...")
