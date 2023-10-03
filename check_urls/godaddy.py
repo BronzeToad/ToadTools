@@ -158,6 +158,8 @@ def main(
 
         if _env_type == EnvType.PRD:
             Utils.save_results_to_json(json_results)
+        elif _env_type == EnvType.DEV:
+            Utils.save_results_to_json(json_results, 'test_output.json')
 
         batch_percent = 100 * batch_available // len(batch)
         total_percent = 100.0 * total_available / total_processed
