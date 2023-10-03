@@ -84,6 +84,17 @@ def save_results_to_json(
         json.dump(existing_data, f, indent=4)
 
 
+def create_batches(
+    items: List[str],
+    batch_size: int
+) -> List[List[str]]:
+    """Split a list into smaller batches."""
+    batches = []
+    for i in range(0, len(items), batch_size):
+        batches.append(items[i:i + batch_size])
+    return batches
+
+
 # =========================================================================== #
 
 if __name__ == '__main__':
@@ -103,3 +114,8 @@ if __name__ == '__main__':
     ]
     save_results_to_json(sample_data, 'test_output.json')
     print("Check 'test_output.json' to see if data is saved correctly.")
+
+    # Test create_batches function
+    print("\nTesting create_batches function...")
+    batches = create_batches(['FakeNameDelta.com', 'FakeNameDelta.org'], 2)
+    print(f"Batches: {batches}")
