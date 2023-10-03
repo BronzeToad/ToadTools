@@ -9,16 +9,6 @@ from utilities import ConfigType, EnvType
 
 # =========================================================================== #
 
-def get_secrets_section_map(env_type: EnvType) -> str:
-    """Determine the appropriate section for config based on the environment."""
-    secrets_mapping = {
-        EnvType.DEV: 'GoDaddyDev',
-        EnvType.PRD: 'GoDaddyProd'
-    }
-
-    return secrets_mapping[env_type]
-
-
 def get_api_url(env_type: EnvType) -> str:
     """Retrieve the API URL based on the environment type."""
     url_mapping = {
@@ -30,6 +20,26 @@ def get_api_url(env_type: EnvType) -> str:
         section='GoDaddy',
         key=url_mapping[env_type]
     )
+
+
+def get_batch_size() -> int:
+    """Retrieve the batch size from the config file."""
+    return Utils.get_config_val('GoDaddy', 'BATCH_SIZE')
+
+
+def get_max_retries() -> int:
+    """Retrieve the max retries from the config file."""
+    return Utils.get_config_val('GoDaddy', 'MAX_RETRIES')
+
+
+def get_secrets_section_map(env_type: EnvType) -> str:
+    """Determine the appropriate section for config based on the environment."""
+    secrets_mapping = {
+        EnvType.DEV: 'GoDaddyDev',
+        EnvType.PRD: 'GoDaddyProd'
+    }
+
+    return secrets_mapping[env_type]
 
 
 def get_api_key(env_type: EnvType) -> str:
@@ -52,7 +62,7 @@ def get_api_secret(env_type: EnvType) -> str:
 
 def check_godaddy_domain(domain: str, env_type: EnvType) -> bool:
     """Check if a domain is available using the GoDaddy API."""
-    max_retries = Utils.get_config_val('GoDaddy', 'MAX_RETRIES')
+    max_retries = get_max_retries()
     api_url = get_api_url(env_type)
     api_key = get_api_key(env_type)
     api_secret = get_api_secret(env_type)
@@ -136,7 +146,7 @@ def main(
 
     _env_type = env_type or EnvType.PRD
     _domain_endings = domain_endings or ['com']
-    _batch_size = batch_size or Utils.get_config_val('GoDaddy', 'BATCH_SIZE')
+    _batch_size = batch_size or get_batch_size()
 
     if limit is not None:
         host_names = host_names[:limit]
