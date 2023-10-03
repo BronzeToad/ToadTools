@@ -9,28 +9,33 @@ from utilities import ConfigType, EnvType
 
 # =========================================================================== #
 
-def get_secrets_section(env_type: EnvType) -> str:
-    """Determine the appropriate section for secrets based on the environment."""
-    section_mapping = {
+def get_secrets_section_map(env_type: EnvType) -> str:
+    """Determine the appropriate section for config based on the environment."""
+    secrets_mapping = {
         EnvType.DEV: 'GoDaddyDev',
         EnvType.PRD: 'GoDaddyProd'
     }
-    return section_mapping[env_type]
+
+    return secrets_mapping[env_type]
 
 
 def get_api_url(env_type: EnvType) -> str:
     """Retrieve the API URL based on the environment type."""
+    url_mapping = {
+        EnvType.DEV: 'DEV_API_URL',
+        EnvType.PRD: 'PROD_API_URL'
+    }
+
     return Utils.get_config_val(
-        section=get_secrets_section(env_type),
-        key='API_URL',
-        config_type=ConfigType.SECRETS
+        section='GoDaddy',
+        key=url_mapping[env_type]
     )
 
 
 def get_api_key(env_type: EnvType) -> str:
     """Retrieve the API key based on the environment type."""
     return Utils.get_config_val(
-        section=get_secrets_section(env_type),
+        section=get_secrets_section_map(env_type),
         key='API_KEY',
         config_type=ConfigType.SECRETS
     )
@@ -39,7 +44,7 @@ def get_api_key(env_type: EnvType) -> str:
 def get_api_secret(env_type: EnvType) -> str:
     """Retrieve the API secret based on the environment type."""
     return Utils.get_config_val(
-        section=get_secrets_section(env_type),
+        section=get_secrets_section_map(env_type),
         key='API_SECRET',
         config_type=ConfigType.SECRETS
     )
