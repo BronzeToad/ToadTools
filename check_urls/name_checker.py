@@ -1,10 +1,17 @@
 from typing import List, Optional, Union
-
+from enum import Enum, auto
 import utilities as Utils
 import godaddy as GoDaddy
 import generate_names as GenNames
 
 from generate_names import Position
+
+# =========================================================================== #
+
+class CheckType(Enum):
+    DOMAIN = auto()
+    GITHUB = auto()
+
 
 # =========================================================================== #
 
