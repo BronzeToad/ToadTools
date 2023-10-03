@@ -146,6 +146,7 @@ def main(
 
     for i, batch in enumerate(batches):
         print(f"\nProcessing batch {i + 1} of {len(batches)}...")
+        print(f"Batch items: {batch}")
         json_results, calc_results = check_domain_list(batch, _env_type)
 
         batch_available = 0
