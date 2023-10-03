@@ -75,6 +75,17 @@ class NameChecker:
 # =========================================================================== #
 
 if __name__ == '__main__':
+
+    item_lists = [
+        'fantasy', 'mythical_creatures', 'science_fiction', 'birds', 'bugs',
+        'mammals', 'other_animals', 'reptiles_and_amphibians',
+        'underwater_animals', 'botanical', 'gemstones', 'materials',
+        'musical_instruments', 'natural_things', 'tools_and_instruments',
+        'architectural_terms', 'astronomy_and_space', 'colors',
+        'geographical_landforms', 'math_and_science_terms', 'medieval_terms',
+        'weather_phenomena'
+    ]
+
     CheckItOut = NameChecker(
         env_type=Utils.EnvType.PRD
     )
