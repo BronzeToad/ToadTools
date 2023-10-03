@@ -65,7 +65,12 @@ def concatenate_item_lists(
     list_b: List[str]
 ) -> List[str]:
     """Combine strings from two lists into one list of concatenated strings."""
-    return [a + b for a in list_a for b in list_b]
+    concatenated = []
+    for a in list_a:
+        for b in list_b:
+            if a != b:  # Check to prevent items like "AlphaAlpha"
+                concatenated.append(a + b)
+    return concatenated
 
 # =========================================================================== #
 
