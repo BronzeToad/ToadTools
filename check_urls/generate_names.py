@@ -6,10 +6,10 @@ import utilities as Utils
 
 # =========================================================================== #
 
-class ListPlacement(Enum):
-    BEGINNING = 'beginning'
+class Position(Enum):
+    START = 'start'
     END = 'end'
-    BOTH = 'both'
+    START_END = 'start_end'
 
 
 # =========================================================================== #
@@ -20,47 +20,47 @@ def get_name_seeds() -> List[Dict]:
     return Utils.load_json(filepath)
 
 
-def get_list_names() -> List[str]:
+def get_names() -> List[str]:
     """Get all unique list names from the name seed data."""
     name_seeds = get_name_seeds()
-    return [item['listName'] for item in name_seeds]
+    return [item['key'] for item in name_seeds]
 
 
-def get_list_placements() -> List[ListPlacement]:
-    """Get all unique list placements from the ListPlacement enum."""
-    return [placement.value for placement in ListPlacement]
+def get_positions() -> List[Position]:
+    """Get all unique list placements from the Position enum."""
+    return [pos.value for pos in Position]
 
 
-def get_combined_list(
-    list_names: Optional[Union[List[str], str]] = None,
-    list_placements: Optional[Union[List[ListPlacement], ListPlacement]] = None
+def get_combined_items(
+    keys: Optional[Union[List[str], str]] = None,
+    positions: Optional[Union[List[Position], Position]] = None
 ) -> List[str]:
-    """Combine lists by names and placements, return unique, sorted list."""
+    """Combine lists by names and positions, return unique, sorted list."""
 
-    if list_names is None:
-        names = get_list_names()
-    elif isinstance(list_names, str):
-        names = [list_names]
+    if keys is None:
+        _keys = get_names()
+    elif isinstance(keys, str):
+        _keys = [keys]
     else:
-        names = list_names
+        _keys = keys
 
-    if list_placements is None:
-        placements = get_list_placements()
-    elif isinstance(list_placements, ListPlacement):
-        placements = [list_placements.value]
+    if positions is None:
+        _positions = get_positions()
+    elif isinstance(positions, Position):
+        _positions = [positions.value]
     else:
-        placements = [p.value for p in list_placements]
+        _positions = [pos.value for pos in positions]
 
     lists_to_combine = []
     for item in get_name_seeds():
-        for placement in placements:
-            if item['listName'] in names and item['listPlacement'] == placement:
-                lists_to_combine.append(item['listItems'])
+        for pos in _positions:
+            if item['key'] in _keys and item['position'] == pos:
+                lists_to_combine.append(item['items'])
 
     return Utils.combine_lists(*lists_to_combine)
 
 
-def concatenate_string_lists(
+def concatenate_item_lists(
     list_a: List[str],
     list_b: List[str]
 ) -> List[str]:
@@ -77,39 +77,39 @@ if __name__ == '__main__':
 
     # Test get_list_names
     print("Testing get_list_names:")
-    print(get_list_names())
+    print(get_names())
     print()
 
     # Test get_list_placements
     print("Testing get_list_placements:")
-    print(get_list_placements())
+    print(get_positions())
     print()
 
     # Test get_combined_list with default values (None)
     print("Testing get_combined_list with default values:")
-    print(get_combined_list())
+    print(get_combined_items())
     print()
 
     # Test get_combined_list with a specific list_name
     print("Testing get_combined_list with a specific list_name:")
-    print(get_combined_list(list_names='botanical'))
+    print(get_combined_items(keys='botanical'))
     print()
 
     # Test get_combined_list with multiple list_names
     print("Testing get_combined_list with multiple list_names:")
-    print(get_combined_list(list_names=['birds', 'gemstones']))
+    print(get_combined_items(keys=['birds', 'gemstones']))
     print()
 
     # Test get_combined_list with a specific placement
     print("Testing get_combined_list with a specific placement:")
-    print(get_combined_list(list_placements=ListPlacement.BEGINNING))
+    print(get_combined_items(positions=Position.START))
     print()
 
     # Test get_combined_list with multiple placements
     print("Testing get_combined_list with multiple placements:")
-    print(get_combined_list(list_placements=[ListPlacement.BEGINNING, ListPlacement.BOTH]))
+    print(get_combined_items(positions=[Position.END, Position.START_END]))
     print()
 
     # Test concatenate_string_lists
     print("Testing concatenate_string_lists:")
-    print(concatenate_string_lists(['A', 'B'], ['C', 'D']))
+    print(concatenate_item_lists(['A', 'B'], ['C', 'D']))
