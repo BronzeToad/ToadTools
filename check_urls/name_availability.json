@@ -1,0 +1,406 @@
+[
+    {
+        "name": "FakeNameAlpha",
+        "FakeNameAlpha.com": true
+    },
+    {
+        "name": "AgateAboleth",
+        "AgateAboleth.com": true
+    },
+    {
+        "name": "AgateAdder",
+        "AgateAdder.com": true
+    },
+    {
+        "name": "AgateAlder",
+        "AgateAlder.com": true
+    },
+    {
+        "name": "AgateAlien",
+        "AgateAlien.com": true
+    },
+    {
+        "name": "AgateAlligator",
+        "AgateAlligator.com": true
+    },
+    {
+        "name": "AgateAloe",
+        "AgateAloe.com": true
+    },
+    {
+        "name": "AgateAmber",
+        "AgateAmber.com": true
+    },
+    {
+        "name": "AgateAmulet",
+        "AgateAmulet.com": true
+    },
+    {
+        "name": "AgateAnaconda",
+        "AgateAnaconda.com": true
+    },
+    {
+        "name": "AgateAndroid",
+        "AgateAndroid.com": true
+    },
+    {
+        "name": "AgateAngelfish",
+        "AgateAngelfish.com": true
+    },
+    {
+        "name": "AgateAnt",
+        "AgateAnt.com": true
+    },
+    {
+        "name": "AgateAnvil",
+        "AgateAnvil.com": true
+    },
+    {
+        "name": "AgateApe",
+        "AgateApe.com": true
+    },
+    {
+        "name": "AgateAphid",
+        "AgateAphid.com": true
+    },
+    {
+        "name": "AgateArch",
+        "AgateArch.com": true
+    },
+    {
+        "name": "AgateArmadillo",
+        "AgateArmadillo.com": false
+    },
+    {
+        "name": "AgateAspen",
+        "AgateAspen.com": true
+    },
+    {
+        "name": "AgateAtom",
+        "AgateAtom.com": true
+    },
+    {
+        "name": "AgateAwl",
+        "AgateAwl.com": true
+    },
+    {
+        "name": "AgateAx",
+        "AgateAx.com": true
+    },
+    {
+        "name": "AgateAxis",
+        "AgateAxis.com": true
+    },
+    {
+        "name": "AgateBamboo",
+        "AgateBamboo.com": true
+    },
+    {
+        "name": "AgateBanjo",
+        "AgateBanjo.com": true
+    },
+    {
+        "name": "AgateBanner",
+        "AgateBanner.com": true
+    },
+    {
+        "name": "AgateBanshee",
+        "AgateBanshee.com": true
+    },
+    {
+        "name": "AgateBard",
+        "AgateBard.com": true
+    },
+    {
+        "name": "AgateBase",
+        "AgateBase.com": true
+    },
+    {
+        "name": "AgateBasilisk",
+        "AgateBasilisk.com": true
+    },
+    {
+        "name": "AgateBass",
+        "AgateBass.com": true
+    },
+    {
+        "name": "AgateBat",
+        "AgateBat.com": true
+    },
+    {
+        "name": "AgateBay",
+        "AgateBay.com": false
+    },
+    {
+        "name": "AgateBear",
+        "AgateBear.com": true
+    },
+    {
+        "name": "AgateBeaver",
+        "AgateBeaver.com": true
+    },
+    {
+        "name": "AgateBedbug",
+        "AgateBedbug.com": true
+    },
+    {
+        "name": "AgateBee",
+        "AgateBee.com": true
+    },
+    {
+        "name": "AgateBeetle",
+        "AgateBeetle.com": true
+    },
+    {
+        "name": "AgateBeholder",
+        "AgateBeholder.com": true
+    },
+    {
+        "name": "AgateBell",
+        "AgateBell.com": true
+    },
+    {
+        "name": "AgateBench",
+        "AgateBench.com": true
+    },
+    {
+        "name": "AgateBeryl",
+        "AgateBeryl.com": true
+    },
+    {
+        "name": "AgateBezel",
+        "AgateBezel.com": true
+    },
+    {
+        "name": "AgateBight",
+        "AgateBight.com": true
+    },
+    {
+        "name": "AgateBirch",
+        "AgateBirch.com": true
+    },
+    {
+        "name": "AgateBison",
+        "AgateBison.com": true
+    },
+    {
+        "name": "AgateBlade",
+        "AgateBlade.com": true
+    },
+    {
+        "name": "AgateBlaster",
+        "AgateBlaster.com": true
+    },
+    {
+        "name": "AgateBlizzard",
+        "AgateBlizzard.com": true
+    },
+    {
+        "name": "AgateBloom",
+        "AgateBloom.com": false
+    },
+    {
+        "name": "AgateBoa",
+        "AgateBoa.com": true
+    },
+    {
+        "name": "AgateBoar",
+        "AgateBoar.com": true
+    },
+    {
+        "name": "AgateBolt",
+        "AgateBolt.com": true
+    },
+    {
+        "name": "AgateBorer",
+        "AgateBorer.com": true
+    },
+    {
+        "name": "AgateBrass",
+        "AgateBrass.com": true
+    },
+    {
+        "name": "AgateBream",
+        "AgateBream.com": true
+    },
+    {
+        "name": "AgateBrick",
+        "AgateBrick.com": true
+    },
+    {
+        "name": "AgateBronze",
+        "AgateBronze.com": true
+    },
+    {
+        "name": "AgateBud",
+        "AgateBud.com": true
+    },
+    {
+        "name": "AgateBugbear",
+        "AgateBugbear.com": true
+    },
+    {
+        "name": "AgateBurlap",
+        "AgateBurlap.com": true
+    },
+    {
+        "name": "AgateButte",
+        "AgateButte.com": true
+    },
+    {
+        "name": "AgateButterfly",
+        "AgateButterfly.com": true
+    },
+    {
+        "name": "AgateCanary",
+        "AgateCanary.com": true
+    },
+    {
+        "name": "AgateCant",
+        "AgateCant.com": true
+    },
+    {
+        "name": "AgateCanyon",
+        "AgateCanyon.com": false
+    },
+    {
+        "name": "AgateCarp",
+        "AgateCarp.com": true
+    },
+    {
+        "name": "AgateCave",
+        "AgateCave.com": true
+    },
+    {
+        "name": "AgateCedar",
+        "AgateCedar.com": true
+    },
+    {
+        "name": "AgateCell",
+        "AgateCell.com": true
+    },
+    {
+        "name": "AgateCentaur",
+        "AgateCentaur.com": true
+    },
+    {
+        "name": "AgateCeramic",
+        "AgateCeramic.com": true
+    },
+    {
+        "name": "AgateCeres",
+        "AgateCeres.com": true
+    },
+    {
+        "name": "AgateChainmail",
+        "AgateChainmail.com": true
+    },
+    {
+        "name": "AgateChalice",
+        "AgateChalice.com": true
+    },
+    {
+        "name": "AgateCham",
+        "AgateCham.com": true
+    },
+    {
+        "name": "AgateChameleon",
+        "AgateChameleon.com": true
+    },
+    {
+        "name": "AgateCheetah",
+        "AgateCheetah.com": true
+    },
+    {
+        "name": "AgateChimera",
+        "AgateChimera.com": true
+    },
+    {
+        "name": "AgateChisel",
+        "AgateChisel.com": true
+    },
+    {
+        "name": "AgateCicada",
+        "AgateCicada.com": true
+    },
+    {
+        "name": "AgateCitrine",
+        "AgateCitrine.com": true
+    },
+    {
+        "name": "AgateClam",
+        "AgateClam.com": true
+    },
+    {
+        "name": "AgateClamp",
+        "AgateClamp.com": true
+    },
+    {
+        "name": "AgateClarinet",
+        "AgateClarinet.com": true
+    },
+    {
+        "name": "AgateClay",
+        "AgateClay.com": true
+    },
+    {
+        "name": "AgateCleric",
+        "AgateCleric.com": true
+    },
+    {
+        "name": "AgateCliff",
+        "AgateCliff.com": true
+    },
+    {
+        "name": "AgateClone",
+        "AgateClone.com": true
+    },
+    {
+        "name": "AgateCloud",
+        "AgateCloud.com": false
+    },
+    {
+        "name": "AgateCobra",
+        "AgateCobra.com": true
+    },
+    {
+        "name": "AgateCockroach",
+        "AgateCockroach.com": true
+    },
+    {
+        "name": "AgateColonnade",
+        "AgateColonnade.com": true
+    },
+    {
+        "name": "AgateComet",
+        "AgateComet.com": true
+    },
+    {
+        "name": "AgateConch",
+        "AgateConch.com": true
+    },
+    {
+        "name": "AgateCoral",
+        "AgateCoral.com": false
+    },
+    {
+        "name": "AgateCork",
+        "AgateCork.com": true
+    },
+    {
+        "name": "AgateCotton",
+        "AgateCotton.com": true
+    },
+    {
+        "name": "AgateCoyote",
+        "AgateCoyote.com": true
+    },
+    {
+        "name": "AgateCrab",
+        "AgateCrab.com": true
+    },
+    {
+        "name": "AgateCrane",
+        "AgateCrane.com": true
+    }
+]
