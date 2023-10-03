@@ -18,29 +18,66 @@ class NameChecker:
     ):
         self.env_type = env_type
         self.item_list_keys = item_list_keys
+        self.domain_endings = domain_endings
         self.__post_init__()
 
+
     def __post_init__(self):
-        self.beginning_names = self.get_start_items()
-        self.end_names = self.get_end_items()
+        self.start_items = self.get_start_items()
+        self.end_items = self.get_end_items()
+        self.concat_items = self.get_concatenated_items()
+
 
     def get_start_items(self) -> List[str]:
-        return Utils.combine_lists(
+        print("Fetching start items...")
+        items = Utils.combine_lists(
             GenNames.get_combined_items(self.item_list_keys, Position.START),
             GenNames.get_combined_items(self.item_list_keys, Position.START_END)
         )
+        print(f"Retrieved {len(items)} start items.")
+        return items
+
 
     def get_end_items(self) -> List[str]:
-        return Utils.combine_lists(
+        print("Fetching end items...")
+        items = Utils.combine_lists(
             GenNames.get_combined_items(self.item_list_keys, Position.END),
             GenNames.get_combined_items(self.item_list_keys, Position.START_END)
         )
+        print(f"Retrieved {len(items)} end items.")
+        return items
 
 
+    def get_concatenated_items(self) -> List[str]:
+        print("Concatenating items...")
+        items = GenNames.concatenate_item_lists(
+            self.start_items,
+            self.end_items
+        )
+        print(f"Generated {len(items)} concatenated items.")
+        return items
 
+
+    def check_domains(
+        self,
+        batch_size: Optional[int] = None,
+        limit: Optional[int] = None
+    ) -> None:
+        GoDaddy.main(
+            host_names=self.concat_items,
+            env_type=self.env_type,
+            domain_endings=self.domain_endings,
+            batch_size=batch_size,
+            limit=limit
+        )
 
 
 # =========================================================================== #
 
 if __name__ == '__main__':
-    pass
+    CheckItOut = NameChecker(
+        env_type=Utils.EnvType.PRD
+    )
+
+    CheckItOut.check_domains()
+
