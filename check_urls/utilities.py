@@ -45,18 +45,16 @@ def get_config_val(
     return val
 
 
-def mash_list_strings(
-    list_a: List[str],
-    list_b: List[str]
-) -> List[str]:
-    """Combine strings from two lists into one list of concatenated strings."""
-    return [a + b for a in list_a for b in list_b]
-
-
 def combine_lists(*lists: List[str]) -> List[str]:
     """Combine multiple lists into a single list with unique, sorted items."""
     unique_items = set(chain(*lists))
     return sorted(unique_items)
+
+
+def load_json(file_path: str) -> List[Dict]:
+    """Load JSON data from a given file path."""
+    with open(file_path, 'r') as f:
+        return json.load(f)
 
 
 def save_results_to_json(
@@ -109,4 +107,3 @@ if __name__ == '__main__':
     ]
     save_results_to_json(sample_data, 'test_output.json')
     print("Check 'test_output.json' to see if data is saved correctly.")
-
