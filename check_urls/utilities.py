@@ -91,10 +91,6 @@ if __name__ == '__main__':
     print("Testing get_config_val:")
     print(get_config_val('Main', 'ROOT'))
 
-    # Test mash_list_strings function
-    print("\nTesting mash_list_strings:")
-    print(mash_list_strings(['a', 'b'], ['1', '2']))
-
     # Test combine_lists function
     print("\nTesting combine_lists:")
     print(combine_lists(['a', 'b'], ['c'], ['a', 'd']))
