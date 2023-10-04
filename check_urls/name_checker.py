@@ -3,6 +3,7 @@ from enum import Enum, auto
 import utilities as Utils
 import godaddy as GoDaddy
 import generate_names as GenNames
+import github as GitHub
 
 from generate_names import Position
 
@@ -13,6 +14,7 @@ class CheckType(Enum):
     GITHUB = auto()
 
 
+# TODO: just move utils to this class and do the batch stuff here
 # =========================================================================== #
 
 class NameChecker:
@@ -20,12 +22,10 @@ class NameChecker:
     def __init__(
         self,
         env_type: Utils.EnvType,
-        item_list_keys: Optional[Union[List[str], str]] = None,
-        domain_endings: Optional[List[str]] = None,
+        item_list_keys: Optional[Union[List[str], str]] = None
     ):
         self.env_type = env_type
         self.item_list_keys = item_list_keys
-        self.domain_endings = domain_endings
         self.__post_init__()
 
 
@@ -67,17 +67,24 @@ class NameChecker:
 
     def check_domains(
         self,
+        domain_endings: Optional[List[str]] = None,
         batch_size: Optional[int] = None,
         limit: Optional[int] = None
     ) -> None:
         GoDaddy.main(
             host_names=self.concat_items,
             env_type=self.env_type,
-            domain_endings=self.domain_endings,
+            domain_endings=domain_endings,
             batch_size=batch_size,
             limit=limit
         )
 
+
+    def check_github(self) -> None:
+        GitHub.main(
+            usernames=self.concat_items,
+            env_type=self.env_type
+        )
 
 # =========================================================================== #
 
