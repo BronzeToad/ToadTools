@@ -5,7 +5,7 @@ import re
 import string
 from typing import Dict, List, Optional, Set, Union
 
-from toad_tools.enum_hatchery import CurrencyType
+from src.enum_hatchery import CurrencyType
 
 # =========================================================================== #
 
@@ -173,7 +173,7 @@ def reverse_words(input_str: str) -> str:
     return reversed_words
 
 
-def reverse_characters(input_str: str) -> str:
+def reverse_chars(input_str: str) -> str:
     """
     Reverse the order of characters in a given string.
 

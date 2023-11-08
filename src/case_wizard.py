@@ -1,4 +1,4 @@
-from toad_tools.enum_hatchery import StringCase
+from src.enum_hatchery import StringCase
 
 # =========================================================================== #
 

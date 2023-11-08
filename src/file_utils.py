@@ -18,8 +18,8 @@ from PIL import Image
 from cv2 import VideoCapture
 from filelock import FileLock, Timeout
 
-from toad_tools.enum_hatchery import ChecksumType, FileCheckType, FileType, OperationType, SerializationType
-from toad_tools.file_type_validator import file_type_validator
+from src.enum_hatchery import ChecksumType, FileCheckType, FileType, OperationType, SerializationType
+from src.file_type_validator import FileTypeValidator
 
 
 # =========================================================================== #
@@ -198,7 +198,6 @@ def get_file(
 
     standardized_filename = force_extension(filename, file_type.name.lower())
     filepath = Path(folder) / standardized_filename
-    check_filepath(filepath, FileCheckType.EXISTS)
 
     file_type_map = get_file_type_map()
 
@@ -607,7 +606,7 @@ def validate_file_type(
 
     std_filename = force_extension(filename, expected_type.name.lower())
     filepath = Path(folder) / std_filename
-    return file_type_validator(filepath, expected_type)
+    return FileTypeValidator(filepath, expected_type).validate()
 
 
 def concatenate_files(

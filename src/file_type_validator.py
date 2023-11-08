@@ -12,8 +12,8 @@ from PyPDF2 import PdfFileReader
 from cv2 import VideoCapture
 from soundfile import SoundFile
 
-from toad_tools.enum_hatchery import FileCheckType, FileType
-from toad_tools.file_utils import check_filepath
+from src.enum_hatchery import FileCheckType, FileType
+from src.file_utils import check_filepath
 
 
 # =========================================================================== #
