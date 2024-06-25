@@ -4,6 +4,7 @@ sandbox/
 .DS_Store
 notes.txt
 check_urls/cfg/secrets.ini
+cfg/downloader.yml
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
