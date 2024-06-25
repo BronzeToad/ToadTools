@@ -1,0 +1,5 @@
+download_directory: 'downloads'
+urls_to_download:
+  - "https://example.com/download2=file1.mp4/dr/files/release-1.mp4"
+  - "https://example.com/download2=file2.mp4/dr/files/release-2.mp4"
+  - "https://example.com/download2=file3.mp4/dr/files/release-3.mp4"
