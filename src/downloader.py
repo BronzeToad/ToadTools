@@ -82,9 +82,10 @@ class Downloader:
         custom_filename: Optional[str] = None
     ) -> None:
         filename = custom_filename or self.filename_callable(url)
-        tmp_directory = self.download_directory / 'tmp'
+        download_directory = Path(self.download_directory)
+        tmp_directory = download_directory / 'tmp'
         tmp_file_path = tmp_directory / filename
-        final_file_path = self.download_directory / filename
+        final_file_path = download_directory / filename
 
         tmp_directory.mkdir(parents=True, exist_ok=True)
 
@@ -93,7 +94,6 @@ class Downloader:
             response.raise_for_status()
 
             total_size = int(response.headers.get('content-length', 0))
-            block_size = 8192
             downloaded_size = 0
 
             with open(tmp_file_path, 'wb') as file:
