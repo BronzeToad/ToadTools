@@ -1,6 +1,6 @@
-download_directory: "downloads"
+download_directory: "B:/dolphin/vr/downloads"
 download_urls:
   - "https://example.com/download2=file1.mp4/dr/files/release-1.mp4"
   - "https://example.com/download2=file2.mp4/dr/files/release-2.mp4"
   - "https://example.com/download2=file3.mp4/dr/files/release-3.mp4"
-derive_filename: "url.split('download2=')[-1].split('/dr')[0]"
+derive_filename: "url.split('/')[-1].lower()"
