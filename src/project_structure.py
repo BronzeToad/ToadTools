@@ -70,7 +70,7 @@ def generate_structured_lines(root_path: Path, tracked_files: List[str]) -> List
 
     Returns:
     - List[str]: A sorted list of strings, each representing a path in the project's structure.
-            Directories are included once, and the sorting is case-insensitive.
+        Directories are included once, and the sorting is case-insensitive.
     """
     log.info("Generating structured representation of project structure...")
     processed_dirs = set()
@@ -106,8 +106,9 @@ def format_structured_str(root_path: Path, structure_lines: List[str]) -> str:
     - root_path (Path): The root directory of the project, used to calculate relative paths.
     - structure_lines (List[str]): A list of strings, each representing a path within the project.
 
-    Returns: - str: A formatted string representing the structure of the project,
-        with indentation indicating depth.
+    Returns:
+    - str: A formatted string representing the structure of the project, with indentation
+        indicating depth.
     """
     log.info("Formatting project structure output...")
     structure_str = ""
@@ -142,7 +143,7 @@ def write_structure_to_file(root_path: Path, output_filename: str, structure_str
 
     Raises:
     - FileNotFoundError: If the file does not exist after attempting to write, or if any other
-      error occurs during the write operation. The original exception is set as the __cause__.
+        error occurs during the write operation. The original exception is set as the __cause__.
     """
     filepath = root_path / output_filename
     log.info(f"Writing project structure to file: {filepath}...")
@@ -176,11 +177,13 @@ def get_project_structure(
     file structure. This structured representation can either be printed to the console or
     written to a specified file.
 
-    Parameters: - project_name (str): The name of the project for which the structure is to be
-    retrieved. - output_to_file (bool, optional): Flag indicating whether to write the structure
-    to a file. Defaults to False. - output_filename (Optional[str], optional): The name of the
-    file to which the structure should be written if output_to_file is True. Defaults to
-    'project_structure.txt' if not provided.
+    Parameters:
+    - project_name (str): The name of the project for which the structure is to be retrieved.
+    - output_to_file (bool, optional): Flag indicating whether to write the structure
+        to a file. Defaults to False.
+    - output_filename (Optional[str], optional): The name of the file to which the structure
+        should be written if output_to_file is True. Defaults to 'project_structure.txt'
+        if not provided.
 
     Raises:
     - FileNotFoundError: If output_to_file is True and the specified file cannot be written.
