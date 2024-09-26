@@ -229,7 +229,7 @@ class ToadLogger:
 
 
 if __name__ == "__main__":
-    # Test LogLevel Enum
+    # Example usage: LogLevel Enum
     print(f"\n{LogLevel.INFO.value}")  # 20
     print(
         LogLevel.INFO.description
@@ -238,7 +238,7 @@ if __name__ == "__main__":
     print(LogLevel.DEBUG.formatted)  # DEBUG (10)
     print(f"{LogLevel.WARN == LogLevel.WARNING}\n")  # True
 
-    # Test Toad Logger
+    # Example usage: Test Toad Logger
     logger = ToadLogger("toad_logger", LogLevel.DEBUG)
     logger.debug("This is a test debug message.")
     logger.info("This is a test info message.")
