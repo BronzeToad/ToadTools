@@ -195,7 +195,6 @@ class ToadLogger:
                 "ERROR": "red",
                 "CRITICAL": "red,bg_white",
             }
-        print(f"Formatter Params: {params}")
         return params
 
     def _validate_level(self, level: Optional[Union[int, LogLevel]]) -> int:
