@@ -1,6 +1,6 @@
+import re
 from enum import Enum, auto
 from typing import Callable, Dict
-import re
 
 
 class CaseType(Enum):
@@ -155,6 +155,7 @@ class CaseWizard:
 
 
 if __name__ == "__main__":
+    # Example usage
     wizard = CaseWizard()
     input_string = "Hello, World! This is a test string."
 
