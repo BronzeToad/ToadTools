@@ -19,54 +19,50 @@ class CaseType(Enum):
 
 
 def to_camel_case(input_string: str) -> str:
-    """
-    Convert the input string to camel case.
+    """Converts a string to CamelCase format.
 
     Args:
-        input_string (str): The input string to convert.
+        input_string (str): The string to convert.
 
     Returns:
-        str: The input string converted to camel case.
+        str: The converted CamelCase string.
     """
     words = re.findall(r"\w+", input_string.lower())
     return words[0] + "".join(word.capitalize() for word in words[1:])
 
 
 def to_cobol_case(input_string: str) -> str:
-    """
-    Convert the input string to COBOL case.
+    """Converts a string to COBOL-CASE format.
 
     Args:
-        input_string (str): The input string to convert.
+        input_string (str): The string to convert.
 
     Returns:
-        str: The input string converted to COBOL case.
+        str: The converted COBOL-CASE string.
     """
     return "-".join(re.findall(r"\w+", input_string.upper()))
 
 
 def to_kebab_case(input_string: str) -> str:
-    """
-    Convert the input string to kebab case.
+    """Converts a string to kebab-case format.
 
     Args:
-        input_string (str): The input string to convert.
+        input_string (str): The string to convert.
 
     Returns:
-        str: The input string converted to kebab case.
+        str: The converted kebab-case string.
     """
     return "-".join(re.findall(r"\w+", input_string.lower()))
 
 
 def to_pascal_case(input_string: str) -> str:
-    """
-    Convert the input string to Pascal case.
+    """Converts a string to PascalCase format.
 
     Args:
-        input_string (str): The input string to convert.
+        input_string (str): The string to convert.
 
     Returns:
-        str: The input string converted to Pascal case.
+        str: The converted PascalCase string.
     """
     return "".join(
         word.capitalize() for word in re.findall(r"\w+", input_string.lower())
@@ -74,40 +70,39 @@ def to_pascal_case(input_string: str) -> str:
 
 
 def to_scream_case(input_string: str) -> str:
-    """
-    Convert the input string to SCREAM case.
+    """Converts a string to SCREAM_CASE format.
 
     Args:
-        input_string (str): The input string to convert.
+        input_string (str): The string to convert.
 
     Returns:
-        str: The input string converted to SCREAM case.
+        str: The converted SCREAM_CASE string.
     """
     return "_".join(re.findall(r"\w+", input_string.upper()))
 
 
 def to_snake_case(input_string: str) -> str:
-    """
-    Convert the input string to snake case.
+    """Converts a string to snake_case format.
 
     Args:
-        input_string (str): The input string to convert.
+        input_string (str): The string to convert.
 
     Returns:
-        str: The input string converted to snake case.
+        str: The converted snake_case string.
     """
     return "_".join(re.findall(r"\w+", input_string.lower()))
 
 
 def to_spongebob_case(input_string: str) -> str:
-    """
-    Convert the input string to SpOnGeBoB case.
+    """Converts a string to SpongeBobCase format.
+
+    Alternates the casing of alphabetic characters, starting with lowercase.
 
     Args:
-        input_string (str): The input string to convert.
+        input_string (str): The string to convert.
 
     Returns:
-        str: The input string converted to SpOnGeBoB case.
+        str: The converted SpongeBobCase string.
     """
     return "".join(
         c.upper() if i % 2 else c.lower()
@@ -117,14 +112,16 @@ def to_spongebob_case(input_string: str) -> str:
 
 
 class CaseWizard:
-    """
-    A class that provides methods to convert strings between different case types.
+    """A class that provides methods to convert strings between different case types.
+
+    Attributes:
+        strategies (Dict[CaseType, Callable[[str], str]]): A mapping of case types to their
+            corresponding conversion functions.
     """
 
     def __init__(self):
-        """
-        Initialize the CaseWizard with a dictionary of conversion strategies.
-        """
+        """Initializes the CaseWizard with predefined conversion strategies."""
+
         self.strategies: Dict[CaseType, Callable[[str], str]] = {
             CaseType.CAMEL: to_camel_case,
             CaseType.COBOL: to_cobol_case,
@@ -139,16 +136,14 @@ class CaseWizard:
         }
 
     def convert(self, input_string: str, output_case: CaseType) -> str:
-        """
-        Convert the input string to the specified case type.
+        """Converts an input string to the specified case format.
 
         Args:
-            input_string (str): The input string to convert.
-            output_case (CaseType): The desired output case type.
+            input_string (str): The string to convert.
+            output_case (CaseType): The desired case format.
 
         Returns:
-            str: The input string converted to the specified case type.
-                 If the case type is not supported, returns the original string.
+            str: The converted string in the specified case format.
         """
         strategy = self.strategies.get(output_case)
         return strategy(input_string) if strategy else input_string
