@@ -1,12 +1,9 @@
 import logging
 from enum import Enum, unique
-from typing import Optional, Union
+from typing import Optional, Union, Any, Dict
 
 import colorlog
 
-###################################################################################################
-# LogLevel Enum
-###################################################################################################
 _NOTSET_DESC = (
     "When set on a logger, indicates that ancestor loggers are to be consulted to determine the "
     "effective level. If that still resolves to NOTSET, then all events are logged. "
@@ -28,29 +25,30 @@ _CRITICAL_DESC = "A serious error, indicating that the program itself may be una
 
 @unique
 class LogLevel(Enum):
-    """
-    Enumeration of log levels with associated integer values and descriptions.
-
-    Each log level has a unique integer value and a description of its purpose.
-    """
+    """Enumeration of logging levels with associated integer values and descriptions."""
 
     NOTSET = (0, _NOTSET_DESC)
+    """Level NOTSET: 0 - No specific logging level set."""
     DEBUG = (10, _DEBUG_DESC)
+    """Level DEBUG: 10 - Detailed information for diagnosing problems."""
     INFO = (20, _INFO_DESC)
+    """Level INFO: 20 - Confirmation that things are working as expected."""
     WARNING = (30, _WARNING_DESC)
+    """Level WARNING: 30 - An indication of potential issues or unexpected events."""
     ERROR = (40, _ERROR_DESC)
+    """Level ERROR: 40 - Serious problems preventing some functionality."""
     CRITICAL = (50, _CRITICAL_DESC)
+    """Level CRITICAL: 50 - Severe errors indicating program may not continue."""
 
     def __new__(cls, value: int, description: str) -> "LogLevel":
-        """
-        Create a new LogLevel instance.
+        """Creates a new instance of LogLevel.
 
         Args:
-            value (int): The integer value associated with the log level.
-            description (str): A description of the log level's purpose.
+            value (int): The integer value of the log level.
+            description (str): A description of the log level.
 
         Returns:
-            LogLevel: A new LogLevel instance.
+            LogLevel: A new instance of LogLevel.
         """
         obj = object.__new__(cls)
         obj._value_ = value
@@ -59,37 +57,34 @@ class LogLevel(Enum):
 
     @property
     def value(self) -> int:
-        """
-        Get the integer value of the log level.
+        """Gets the integer value of the log level.
 
         Returns:
-            int: The integer value of the log level.
+            int: The integer value associated with the log level.
         """
         return self._value_
 
     @property
     def formatted(self) -> str:
-        """
-        Get a formatted string representation of the log level.
+        """Gets the formatted string representation of the log level.
 
         Returns:
-            str: A string in the format "NAME (VALUE)".
+            str: The formatted log level, e.g., "DEBUG (10)".
         """
         return f"{self.name} ({self.value})"
 
     @classmethod
-    def get(cls, value: int):
-        """
-        Get a LogLevel instance from its integer value.
+    def get(cls, value: int) -> "LogLevel":
+        """Retrieves the LogLevel corresponding to the given integer value.
 
         Args:
-            value (int): The integer value of the log level.
-
-        Returns:
-            LogLevel: The corresponding LogLevel instance.
+            value (int): The integer value of the desired log level.
 
         Raises:
-            ValueError: If no LogLevel matches the given value.
+            ValueError: If no LogLevel with the given value exists.
+
+        Returns:
+            LogLevel: The corresponding LogLevel member.
         """
         for member in cls:
             if member.value == value:
@@ -102,92 +97,94 @@ LogLevel.WARN = LogLevel.WARNING
 LogLevel.FATAL = LogLevel.CRITICAL
 
 
-###################################################################################################
-# Toad Logger
-###################################################################################################
 class ToadLogger:
-    """
-    A custom logger class that wraps the standard Python logging module.
+    """A custom logger with enhanced log levels and optional color support.
 
-    This logger supports colored output and provides a simplified interface for logging.
+    This logger wraps the standard Python `logging` module and integrates with the
+    `colorlog` library to provide colored log outputs. It supports various log levels
+    defined in the `LogLevel` enumeration.
+
+    Attributes:
+        name (str): The name of the logger.
+        color (bool): Whether to enable colored log output. Defaults to True.
+        level (int): The logging level as an integer.
+        logger (logging.Logger): The underlying logger instance.
     """
 
-    DEFAULT_LOG_LEVEL = LogLevel.INFO
+    DEFAULT_LOG_LEVEL: LogLevel = LogLevel.INFO
 
     def __init__(
         self,
         name: str,
         level: Optional[Union[int, LogLevel]] = DEFAULT_LOG_LEVEL,
         color: Optional[bool] = True,
-    ):
-        """
-        Initialize a ToadLogger instance.
+    ) -> None:
+        """Initializes the ToadLogger with the specified name, level, and color settings.
 
         Args:
             name (str): The name of the logger.
-            level (Optional[Union[int, LogLevel]], optional): The log level. Defaults to INFO.
-            color (Optional[bool], optional): Whether to use colored output. Defaults to True.
+            level (Optional[Union[int, LogLevel]]): The logging level, either as an integer or a `LogLevel`.
+                Defaults to `LogLevel.INFO`.
+            color (Optional[bool]): Whether to enable colored log output. Defaults to True.
         """
-        self.name = name
-        self.color = color
-        self.level = self._validate_level(level)
-        self.logger = self._setup()
+        self.name: str = name
+        self.color: bool = color
+        self.level: int = self._validate_level(level)
+        self.logger: logging.Logger = self._setup()
 
-    def __getattr__(self, name):
-        """
-        Delegate attribute access to the underlying logger.
+    def __getattr__(self, name: str) -> Any:
+        """Delegates attribute access to the underlying logger.
 
         Args:
-            name (str): The name of the attribute.
+            name (str): The attribute name.
 
         Returns:
-            Any: The value of the attribute from the underlying logger.
+            Any: The attribute from the underlying logger.
         """
         return getattr(self.logger, name)
 
-    def _setup(self):
-        """
-        Set up the logger with appropriate handlers and formatters.
+    def _setup(self) -> logging.Logger:
+        """Sets up the underlying logger with appropriate handlers and formatters.
 
         Returns:
-            Union[colorlog.ColoredLogger, logging.Logger]: The configured logger instance.
+            logging.Logger: The configured logger instance.
         """
-        logger = (
+        logger: logging.Logger = (
             colorlog.getLogger(self.name)
             if self.color
             else logging.getLogger(self.name)
         )
         logger.setLevel(self.level)
-        handler = colorlog.StreamHandler() if self.color else logging.StreamHandler()
+        handler: logging.Handler = (
+            colorlog.StreamHandler() if self.color else logging.StreamHandler()
+        )
         handler.setFormatter(self._get_formatter())
         logger.addHandler(handler)
         return logger
 
-    def _get_formatter(self):
-        """
-        Get the appropriate formatter based on whether color is enabled.
+    def _get_formatter(self) -> logging.Formatter:
+        """Creates and returns a formatter for the log messages.
 
         Returns:
-            Union[colorlog.ColoredFormatter, logging.Formatter]: The configured formatter.
+            logging.Formatter: The configured formatter, with color support if enabled.
         """
         if self.color:
             return colorlog.ColoredFormatter(**self.formatter_params)
         return logging.Formatter(**self.formatter_params)
 
     @property
-    def formatter_params(self):
-        """
-        Get the parameters for the log formatter.
+    def formatter_params(self) -> Dict[str, Union[str, Dict[str, str]]]:
+        """Gets the parameters for the log formatter.
 
         Returns:
-            dict: A dictionary of formatter parameters.
+            Dict[str, Union[str, Dict[str, str]]]: The formatter parameters including format strings and color settings.
         """
-        params = {
+        params: Dict[str, Union[str, Dict[str, str]]] = {
             "fmt": "%(levelname)s - %(asctime)s  |  %(name)s:  %(message)s",
             "datefmt": "%Y-%m-%d %H:%M:%S",
         }
         if self.color:
-            params["fmt"] = "%(log_color)s" + params.get("fmt")
+            params["fmt"] = "%(log_color)s" + params.get("fmt", "")
             params["log_colors"] = {
                 "DEBUG": "cyan",
                 "INFO": "green",
@@ -198,16 +195,17 @@ class ToadLogger:
         return params
 
     def _validate_level(self, level: Optional[Union[int, LogLevel]]) -> int:
-        """
-        Validate and convert the input log level to an integer value.
+        """Validates and converts the provided logging level to an integer.
+
+        If the level is not provided or invalid, the default log level is used.
 
         Args:
-            level (Optional[Union[int, LogLevel]]): The input log level.
+            level (Optional[Union[int, LogLevel]]): The logging level to validate.
 
         Returns:
-            int: The validated log level as an integer.
+            int: The validated logging level as an integer.
         """
-        setting_default_msg = (
+        setting_default_msg: str = (
             f"Setting to default level: {self.DEFAULT_LOG_LEVEL.formatted}"
         )
         if level is None:
@@ -238,8 +236,8 @@ if __name__ == "__main__":
     print(LogLevel.DEBUG.formatted)  # DEBUG (10)
     print(f"{LogLevel.WARN == LogLevel.WARNING}\n")  # True
 
-    # Example usage: Test Toad Logger
-    logger = ToadLogger("toad_logger", LogLevel.DEBUG)
+    # Example usage: Test ToadLogger
+    logger: ToadLogger = ToadLogger("toad_logger", LogLevel.DEBUG)
     logger.debug("This is a test debug message.")
     logger.info("This is a test info message.")
     logger.warning("This is a test warning message.")
