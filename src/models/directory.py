@@ -47,7 +47,7 @@ class Directory:
             Defaults to None.
         os_reserved_dirnames (List[str]): List of OS-reserved directory names.
             Defaults to RESERVED_NAMES.
-        disallowed_dirname_chars (List[str]): List of disallowed characters in directory names.
+        disallowed_chars (List[str]): List of characters not allowed in the dirname.
             Defaults to DISALLOWED_CHARS.
     """
 
@@ -55,14 +55,13 @@ class Directory:
     parent_path: Union[str, Path]
     create_if_not_exists: bool = False
     replacement_char: Optional[str] = None
-    os_reserved_dirnames: List[str] = field(default_factory=lambda: RESERVED_NAMES)
-    disallowed_dirname_chars: List[str] = field(
-        default_factory=lambda: DISALLOWED_CHARS
-    )
+    os_reserved_dirnames: List[str] = field(repr=False, default_factory=lambda: RESERVED_NAMES)
+    disallowed_chars: List[str] = field(repr=False, default_factory=lambda: DISALLOWED_CHARS)
     full_path: Optional[Path] = field(init=False, default=None)
 
     def __post_init__(self) -> None:
         """Post-initialization processing to validate and build the directory path."""
+        frog.debug("Directory object created...")
         self.dirname = self.dirname.strip()
         self._validate_replacement_char()
         self._check_dirname_for_reserved_names()
@@ -76,17 +75,15 @@ class Directory:
         Raises:
             ValueError: If the replacement character is invalid.
         """
-        if self.replacement_char in self.disallowed_dirname_chars:
+        if self.replacement_char in self.disallowed_chars:
             frog.error(f"Replacement character '{self.replacement_char}' is not valid.")
-            raise ValueError(
-                f"Invalid replacement character: '{self.replacement_char}'."
-            )
+            raise ValueError("Invalid replacement character.")
         if self.replacement_char and len(self.replacement_char) > 1:
             frog.error(
                 f"Replacement character '{self.replacement_char}' is too long. "
                 f"Must be a single character."
             )
-            raise ValueError("Replacement character must be a single character.")
+            raise ValueError("Replacement character too long.")
 
     def _check_dirname_for_reserved_names(self) -> None:
         """Checks if the directory name is reserved by the operating system.
@@ -96,9 +93,7 @@ class Directory:
         """
         if self.dirname.upper() in self.os_reserved_dirnames:
             frog.error(f"Directory name '{self.dirname}' is reserved by OS.")
-            raise ValueError(
-                f"Directory name '{self.dirname}' is reserved by the operating system."
-            )
+            raise ValueError("Directory name is reserved by the operating system.")
 
     def _check_dirname_for_disallowed_chars(self) -> None:
         """Checks and handles disallowed characters in the directory name.
@@ -129,11 +124,11 @@ class Directory:
                 )
             return _dirname
 
-        for char in self.disallowed_dirname_chars:
+        for char in self.disallowed_chars:
             while self.dirname.startswith(char) or self.dirname.endswith(char):
                 self.dirname = _strip_char(self.dirname, char)
 
-        for char in self.disallowed_dirname_chars:
+        for char in self.disallowed_chars:
             if char in self.dirname:
                 if self.replacement_char:
                     frog.debug(
@@ -145,9 +140,7 @@ class Directory:
                     frog.error(
                         f"Directory name '{self.dirname}' contains disallowed character '{char}'."
                     )
-                    raise ValueError(
-                        f"Directory name '{self.dirname}' contains disallowed character '{char}'."
-                    )
+                    raise ValueError("Directory name contains disallowed character.")
 
     def _build_full_path(self) -> Path:
         """Builds the full path for the directory.
@@ -171,7 +164,7 @@ class Directory:
 
         if not path.exists():
             frog.error(f"Directory '{path}' does not exist.")
-            raise ValueError(f"Directory '{path}' does not exist.")
+            raise ValueError("Directory does not exist.")
 
         return path
 
