@@ -37,7 +37,7 @@ class File:
         frog.debug("File object created...")
         self.filename = self.filename.strip()
         self._check_filename_for_disallowed_chars()
-        self.filepath = self.directory.full_path / self.filename
+        self.filepath = self.directory.path / self.filename
 
     def _check_filename_for_disallowed_chars(self):
         """Checks and handles disallowed characters in the filename.
@@ -63,7 +63,7 @@ class File:
 if __name__ == "__main__":
     # Example usage
     directory = Directory(
-        dirname="tst", parent_path="B:/dolphin", create_if_not_exists=True
+        dirname="tst", parent="B:/dolphin", create_if_not_exists=True
     )
 
     try:

@@ -40,7 +40,7 @@ class Directory:
 
     Attributes:
         dirname (str): The name of the directory.
-        parent_path (Union[str, Path]): The path to the parent directory.
+        parent (Union[str, Path]): The path to the parent directory.
         create_if_not_exists (bool): Whether to create the directory if it does not exist.
             Defaults to False.
         replacement_char (Optional[str]): Character to replace disallowed characters in dirname.
@@ -52,12 +52,12 @@ class Directory:
     """
 
     dirname: str
-    parent_path: Union[str, Path]
+    parent: Union[str, Path]
     create_if_not_exists: bool = False
     replacement_char: Optional[str] = None
     os_reserved_dirnames: List[str] = field(repr=False, default_factory=lambda: RESERVED_NAMES)
     disallowed_chars: List[str] = field(repr=False, default_factory=lambda: DISALLOWED_CHARS)
-    full_path: Optional[Path] = field(init=False, default=None)
+    path: Optional[Path] = field(init=False, default=None)
 
     def __post_init__(self) -> None:
         """Post-initialization processing to validate and build the directory path."""
@@ -66,8 +66,8 @@ class Directory:
         self._validate_replacement_char()
         self._check_dirname_for_reserved_names()
         self._check_dirname_for_disallowed_chars()
-        self.parent_path = Path(self.parent_path).resolve()
-        self.full_path = self._build_full_path()
+        self.parent = Path(self.parent).resolve()
+        self.path = self._build_full_path()
 
     def _validate_replacement_char(self) -> None:
         """Validates the replacement character for disallowed characters.
@@ -151,13 +151,13 @@ class Directory:
         Raises:
             ValueError: If the directory does not exist and creation is not enabled.
         """
-        if self.dirname == self.parent_path.name:
+        if self.dirname == self.parent.name:
             frog.info(
                 f"Directory name '{self.dirname}' already included in parent path."
             )
-            path = self.parent_path
+            path = self.parent
         else:
-            path = self.parent_path / self.dirname
+            path = self.parent / self.dirname
 
         if self.create_if_not_exists:
             self.create_directory(path)
@@ -203,7 +203,7 @@ if __name__ == "__main__":
         try:
             dir_instance = Directory(
                 dirname=dirname,
-                parent_path="B:/dolphin",
+                parent="B:/dolphin",
                 create_if_not_exists=True,
                 replacement_char="_",
             )
