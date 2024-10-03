@@ -33,6 +33,13 @@ RESERVED_NAMES: List[str] = [
     "LPT9",
 ]
 
+# TODO: add method for deleting directory
+# TODO: add method for renaming directory
+#  will need to update dirname and path after renaming
+#  dirname and path will need to be properties with setters
+#  add a check for reserved names and disallowed chars before renaming
+#  add a check for existing directory with new name before renaming
+
 
 @dataclass
 class Directory:
@@ -55,17 +62,31 @@ class Directory:
     parent: Union[str, Path]
     create_if_not_exists: bool = False
     replacement_char: Optional[str] = None
-    os_reserved_dirnames: List[str] = field(repr=False, default_factory=lambda: RESERVED_NAMES)
-    disallowed_chars: List[str] = field(repr=False, default_factory=lambda: DISALLOWED_CHARS)
+    os_reserved_dirnames: List[str] = field(
+        repr=False, default_factory=lambda: RESERVED_NAMES
+    )
+    disallowed_chars: List[str] = field(
+        repr=False, default_factory=lambda: DISALLOWED_CHARS
+    )
     path: Optional[Path] = field(init=False, default=None)
 
     def __post_init__(self) -> None:
-        """Post-initialization processing to validate and build the directory path."""
+        """Post-initialization processing to validate and build the directory path.
+
+        Raises:
+            ValueError: If the directory name is reserved by the operating system.
+            ValueError: If disallowed characters are present and no replacement char is provided.
+        """
         frog.debug("Directory object created...")
         self.dirname = self.dirname.strip()
         self._validate_replacement_char()
-        self._check_dirname_for_reserved_names()
-        self._check_dirname_for_disallowed_chars()
+
+        if self._check_dirname_for_reserved_names():
+            raise ValueError("Directory name is reserved by the operating system.")
+
+        if self._check_dirname_for_disallowed_chars():
+            raise ValueError("Directory name contains disallowed character.")
+
         self.parent = Path(self.parent).resolve()
         self.path = self._build_full_path()
 
@@ -85,22 +106,35 @@ class Directory:
             )
             raise ValueError("Replacement character too long.")
 
-    def _check_dirname_for_reserved_names(self) -> None:
+    def _check_dirname_for_reserved_names(self, dirname: Optional[str] = None) -> bool:
         """Checks if the directory name is reserved by the operating system.
 
-        Raises:
-            ValueError: If the directory name is reserved.
-        """
-        if self.dirname.upper() in self.os_reserved_dirnames:
-            frog.error(f"Directory name '{self.dirname}' is reserved by OS.")
-            raise ValueError("Directory name is reserved by the operating system.")
+        Args:
+            dirname (str): The directory name to check. Defaults to self.dirname.
 
-    def _check_dirname_for_disallowed_chars(self) -> None:
+        Returns:
+            bool: True if the directory name is reserved, False otherwise.
+        """
+        dirname = dirname or self.dirname
+        if dirname.upper() in self.os_reserved_dirnames:
+            frog.error(f"Directory name '{dirname}' is reserved by OS.")
+            return True
+        return False
+
+    def _check_dirname_for_disallowed_chars(
+        self, dirname: Optional[str] = None
+    ) -> bool:
         """Checks and handles disallowed characters in the directory name.
 
-        Raises:
-            ValueError: If disallowed characters are present and no replacement char is provided.
+        Args:
+            dirname (str): The directory name to check. Defaults to self.dirname.
+
+        Returns:
+            bool: True if disallowed characters are present and no replacement char is provided,
+                False otherwise.
         """
+
+        dirname = dirname or self.dirname
 
         def _strip_char(_dirname: str, _char: str) -> str:
             """Strips a disallowed character from the start or end of the directory name.
@@ -125,22 +159,25 @@ class Directory:
             return _dirname
 
         for char in self.disallowed_chars:
-            while self.dirname.startswith(char) or self.dirname.endswith(char):
-                self.dirname = _strip_char(self.dirname, char)
+            while dirname.startswith(char) or dirname.endswith(char):
+                dirname = _strip_char(dirname, char)
 
         for char in self.disallowed_chars:
-            if char in self.dirname:
+            if char in dirname:
                 if self.replacement_char:
                     frog.debug(
-                        f"Replacing disallowed character '{char}' in directory '{self.dirname}' "
+                        f"Replacing disallowed character '{char}' in directory '{dirname}' "
                         f"with '{self.replacement_char}'."
                     )
-                    self.dirname = self.dirname.replace(char, self.replacement_char)
+                    dirname = dirname.replace(char, self.replacement_char)
                 else:
                     frog.error(
-                        f"Directory name '{self.dirname}' contains disallowed character '{char}'."
+                        f"Directory name '{dirname}' contains disallowed character '{char}'."
                     )
-                    raise ValueError("Directory name contains disallowed character.")
+                    return True
+
+        self.dirname = dirname
+        return False
 
     def _build_full_path(self) -> Path:
         """Builds the full path for the directory.
