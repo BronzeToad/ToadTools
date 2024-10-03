@@ -28,10 +28,10 @@ class DirMap:
 
     def __post_init__(self):
         """Post-initialization processing to create the directory structure."""
-        self.data = Directory(dirname="data", parent=self.root)
-        self.encode = Directory(dirname="encode", parent=self.data.path)
-        self.media = Directory(dirname="media", parent=self.data.path)
-        self.torrents = Directory(dirname="torrents", parent=self.data.path)
+        self.data = Directory(name="data", parent=self.root)
+        self.encode = Directory(name="encode", parent=self.data.path)
+        self.media = Directory(name="media", parent=self.data.path)
+        self.torrents = Directory(name="torrents", parent=self.data.path)
 
 
 if __name__ == "__main__":
