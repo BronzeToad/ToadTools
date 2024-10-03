@@ -1,3 +1,4 @@
+import shutil
 from pathlib import Path
 from typing import Union, Optional, List
 
@@ -12,21 +13,21 @@ class Directory:
     """Represents a directory with validation, creation, deletion, and renaming capabilities.
 
     Attributes:
-        dirname (str): The name of the directory.
+        name (str): The name of the directory.
         parent (Union[str, Path]): The path to the parent directory.
-        replacement_char (Optional[str]): Character to replace disallowed characters in dirname.
+        replacement_char (Optional[str]): Character to replace disallowed characters in name.
             Defaults to None.
-        disallowed_chars (List[str]): List of characters not allowed in the dirname.
+        disallowed_chars (List[str]): List of characters not allowed in the directory name.
             Defaults to DISALLOWED_CHARS.
     """
 
     def __init__(
         self,
-        dirname: str,
+        name: str,
         parent: Union[str, Path],
         replacement_char: Optional[str] = None,
     ):
-        self._dirname = dirname
+        self._name = name
         self._parent = parent
         self._replacement_char = replacement_char
         self.disallowed_chars = DISALLOWED_CHARS
@@ -35,7 +36,7 @@ class Directory:
     def __post_init__(self):
         """Post-initialization processing to validate and set attribute values."""
         frog.debug("Directory object created...")
-        self.dirname = self._dirname
+        self.name = self._name
         self.parent = self._parent
         self.replacement_char = self._replacement_char
 
@@ -43,25 +44,24 @@ class Directory:
         """Overloaded method to return a string representation of the Directory object."""
         return (
             f"Directory("
-            f"dirname: {self.dirname}, "
+            f"name: {self.name}, "
             f"parent: {self.parent}, "
-            f"replacement_char: {self.replacement_char}, "
             f"path: {self.path}, "
             f"exists: {self.exists}"
             f")"
         )
 
     @property
-    def dirname(self) -> str:
+    def name(self) -> str:
         """Gets the directory name.
 
         Returns:
             str: The directory name.
         """
-        return self._dirname
+        return self._name
 
-    @dirname.setter
-    def dirname(self, value: str) -> None:
+    @name.setter
+    def name(self, value: str) -> None:
         """Sets the directory name.
 
         Args:
@@ -86,12 +86,12 @@ class Directory:
                 v = v.replace(char, self.replacement_char)
             elif char in v and not self.replacement_char:
                 frog.error(
-                    f"Directory name '{v}' contains disallowed character '{char}'. Unable to set new value"
+                    f"Directory name '{v}' contains disallowed character '{char}'. Unable to set new name."
                 )
                 return
 
         frog.debug(f"Setting dirname to '{v}'")
-        self._dirname = v
+        self._name = v
 
     @property
     def parent(self) -> Union[str, Path]:
@@ -143,7 +143,7 @@ class Directory:
             v = None
         elif v and len(v) > 1:
             frog.error(
-                f"Replacement character '{v}' is too long. Must be a single character"
+                f"Replacement character '{v}' is too long. Must be a single character."
             )
             v = None
 
@@ -157,13 +157,11 @@ class Directory:
         Returns:
             Optional[Path]: The full path to the directory, or None if the directory does not exist.
         """
-        if self.dirname == self.parent.name:
-            frog.info(
-                f"Directory name '{self.dirname}' already included in parent path."
-            )
+        if self.name == self.parent.name:
+            frog.info(f"Directory name '{self.name}' already included in parent path.")
             return self.parent
         else:
-            return self.parent / self.dirname
+            return self.parent / self.name
 
     @property
     def exists(self) -> bool:
@@ -175,27 +173,27 @@ class Directory:
         return self.path.is_dir()
 
     @staticmethod
-    def _strip_char(dirname: str, char: str) -> str:
+    def _strip_char(name: str, char: str) -> str:
         """Strips a disallowed character from the start or end of the directory name.
 
         Args:
-            dirname (str): The directory name.
+            name (str): The directory name.
             char (str): The disallowed character to strip.
 
         Returns:
             str: The sanitized directory name.
         """
-        if dirname.startswith(char):
-            dirname = dirname[1:]
+        if name.startswith(char):
+            name = name[1:]
             frog.debug(
                 f"Removed disallowed character '{char}' from start of directory name."
             )
-        if dirname.endswith(char):
-            dirname = dirname[:-1]
+        if name.endswith(char):
+            name = name[:-1]
             frog.debug(
                 f"Removed disallowed character '{char}' from end of directory name."
             )
-        return dirname
+        return name
 
     def create(self) -> bool:
         """Creates Directory.path if it does not exist.
@@ -203,13 +201,16 @@ class Directory:
         Returns:
             bool: True if the directory exists after the operation, False otherwise.
         """
-        if self.path.exists():
-            frog.info(f"Directory '{self.path}' already exists.")
-        else:
-            frog.info(f"Creating directory '{self.path}'...")
-            self.path.mkdir(parents=True, exist_ok=True)
-
-        return self.path.exists()
+        try:
+            if self.path.exists():
+                frog.info(f"Directory '{self.path}' already exists.")
+            else:
+                frog.info(f"Creating directory '{self.path}'...")
+                self.path.mkdir(parents=True, exist_ok=True)
+            return True
+        except Exception as e:
+            frog.error(f"Failed to create directory '{self.path}': {e}")
+            return False
 
     def delete(self) -> bool:
         """Deletes Directory.path if it exists.
@@ -218,8 +219,12 @@ class Directory:
             bool: True if the directory does not exist after the operation, False otherwise.
         """
         if self.path.exists():
-            frog.info(f"Deleting directory '{self.path}'...")
-            self.path.rmdir()
+            try:
+                frog.info(f"Deleting directory '{self.path}'...")
+                shutil.rmtree(self.path)
+            except Exception as e:
+                frog.error(f"Failed to delete directory '{self.path}': {e}")
+                return False
         else:
             frog.info(f"Directory '{self.path}' does not exist.")
         return not self.path.exists()
@@ -233,7 +238,7 @@ class Directory:
         Returns:
             bool: True if the directory was successfully renamed, False otherwise.
         """
-        if self.dirname == new_name:
+        if self.name == new_name:
             frog.info(f"Directory name '{new_name}' is the same as the current name.")
             return True
 
@@ -241,21 +246,91 @@ class Directory:
             frog.error(f"Directory '{self.path}' does not exist. Unable to rename.")
             return False
 
-        frog.info(f"Renaming directory '{self.dirname}' to '{new_name}'...")
         new_path = self.path.with_name(new_name)
-        self.path.rename(new_path)
-        self.dirname = new_name
-        return True
+
+        if new_path.exists():
+            frog.error(f"Directory '{new_path}' already exists. Unable to rename.")
+            return False
+
+        try:
+            frog.info(f"Renaming directory '{self.name}' to '{new_name}'...")
+            self.path.rename(new_path)
+            self.name = new_name
+            return True
+        except Exception as e:
+            frog.error(f"Failed to rename directory '{self.path}' to '{new_name}': {e}")
+            return False
+
+    def copy(self, target: Union[str, Path]) -> bool:
+        """Copies the directory to the specified target destination.
+
+        Args:
+            target (Union[str, Path]): The target directory.
+
+        Returns:
+            bool: True if the directory was successfully copied, False otherwise.
+        """
+        if not self.exists:
+            frog.error(f"Directory '{self.path}' does not exist. Unable to copy.")
+            return False
+
+        target = Path(target).resolve()
+        if not target.is_dir():
+            frog.error(f"Target directory '{target}' does not exist. Unable to copy.")
+            return False
+
+        new_path = target / self.name
+
+        if new_path.exists():
+            frog.error(f"Directory '{new_path}' already exists. Unable to copy.")
+            return False
+
+        try:
+            frog.info(f"Copying directory '{self.path}' to '{new_path}'...")
+            shutil.copytree(self.path, new_path)
+            return True
+        except Exception as e:
+            frog.error(f"Failed to copy directory '{self.path}' to '{new_path}': {e}")
+            return False
+
+    def move(self, target: Union[str, Path]) -> bool:
+        """Moves the directory to the specified target destination.
+
+        Args:
+            target (Union[str, Path]): The target directory.
+
+        Returns:
+            bool: True if the directory was successfully moved, False otherwise.
+        """
+        if not self.exists:
+            frog.error(f"Directory '{self.path}' does not exist. Unable to move.")
+            return False
+
+        target = Path(target).resolve()
+        if not target.is_dir():
+            frog.error(f"Target directory '{target}' does not exist. Unable to move.")
+            return False
+
+        new_path = target / self.name
+
+        if new_path.exists():
+            frog.error(f"Directory '{new_path}' already exists. Unable to move.")
+            return False
+
+        try:
+            frog.info(f"Moving directory '{self.path}' to '{new_path}'...")
+            shutil.move(str(self.path), str(new_path))
+            self.parent = target
+            return True
+        except Exception as e:
+            frog.error(f"Failed to move directory '{self.path}' to '{new_path}': {e}")
+            return False
 
 
 if __name__ == "__main__":
     # Example usage
     try:
-        dir_instance = Directory(
-            dirname="test",
-            parent="B:/dolphin",
-            replacement_char="_",
-        )
+        dir_instance = Directory(name="test", parent="B:/dolphin", replacement_char="_")
         frog.info(dir_instance)
         dir_instance.create()
         dir_instance.rename("test1234")
