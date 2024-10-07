@@ -1,0 +1,193 @@
+from random import choice
+from typing import List
+
+from src.utils.toad_logger import ToadLogger, LogLevel
+
+frog = ToadLogger("utils.rand_next_day", level=LogLevel.DEBUG)
+
+
+def random_adjective_noun(adjectives: List[str], nouns: List[str]) -> str:
+    """Generate a random string by combining a random adjective and a random noun.
+
+    Args:
+        adjectives (List[str]): List of adjectives.
+        nouns (List[str]): List of nouns.
+
+    Returns:
+        str: A string that combines a random adjective and a random noun.
+    """
+    random_adj = str(choice(adjectives)).capitalize()
+    random_noun = str(choice(nouns)).capitalize()
+    return f"{random_adj}{random_noun}"
+
+
+# List A: Adjectives
+adjectives = [
+    "brave",
+    "sly",
+    "witty",
+    "calm",
+    "fierce",
+    "gentle",
+    "wise",
+    "bold",
+    "shy",
+    "clever",
+    "swift",
+    "proud",
+    "kind",
+    "stern",
+    "merry",
+    "crafty",
+    "loyal",
+    "grumpy",
+    "sleek",
+    "humble",
+    "jolly",
+    "quirky",
+    "nimble",
+    "eager",
+    "solemn",
+    "keen",
+    "deft",
+    "spry",
+    "brash",
+    "coy",
+    "plucky",
+    "meek",
+    "wry",
+    "prim",
+    "brisk",
+    "burly",
+    "droll",
+    "lithe",
+    "zesty",
+    "sage",
+    "posh",
+    "blunt",
+    "snug",
+    "wily",
+    "terse",
+    "glib",
+    "suave",
+    "quaint",
+    "rash",
+    "taut",
+]
+
+# List B: Nouns
+nouns = [
+    "elf",
+    "dragon",
+    "wizard",
+    "fairy",
+    "troll",
+    "mermaid",
+    "unicorn",
+    "gnome",
+    "giant",
+    "phoenix",
+    "centaur",
+    "werewolf",
+    "vampire",
+    "siren",
+    "gorgon",
+    "basilisk",
+    "chimera",
+    "kraken",
+    "sphinx",
+    "pegasus",
+    "minotaur",
+    "banshee",
+    "leprechaun",
+    "cyclops",
+    "griffon",
+    "imp",
+    "ogre",
+    "harpy",
+    "nymph",
+    "satyr",
+    "wraith",
+    "goblin",
+    "dryad",
+    "selkie",
+    "kitsune",
+    "djinni",
+    "valkyrie",
+    "golem",
+    "hydra",
+    "ghoul",
+    "elemental",
+    "druid",
+    "doppelganger",
+    "sylph",
+    "changeling",
+    "manticore",
+    "naiad",
+    "wendigo",
+    "gargoyle",
+    "wind",
+    "wave",
+    "thunder",
+    "lightning",
+    "earth",
+    "fire",
+    "water",
+    "elephant",
+    "penguin",
+    "octopus",
+    "chimpanzee",
+    "dolphin",
+    "kangaroo",
+    "platypus",
+    "raccoon",
+    "lemur",
+    "koala",
+    "sloth",
+    "panda",
+    "giraffe",
+    "ostrich",
+    "flamingo",
+    "wombat",
+    "hedgehog",
+    "orangutan",
+    "gorilla",
+    "leopard",
+    "jaguar",
+    "lynx",
+    "squirrel",
+    "beaver",
+    "otter",
+    "walrus",
+    "seal",
+    "pelican",
+    "toucan",
+    "macaw",
+    "cockatoo",
+    "chameleon",
+    "iguana",
+    "gecko",
+    "armadillo",
+    "anteater",
+    "porcupine",
+    "badger",
+    "meerkat",
+    "mongoose",
+    "weasel",
+    "tapir",
+    "capybara",
+    "opossum",
+    "pangolin",
+    "aardvark",
+    "okapi",
+    "ibex",
+    "gazelle",
+    "bison",
+]
+
+
+if __name__ == "__main__":
+    # Example usage
+
+    for _ in range(5):
+        print(random_adjective_noun(adjectives, nouns))
