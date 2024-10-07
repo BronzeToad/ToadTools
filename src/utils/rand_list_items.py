@@ -6,19 +6,37 @@ from src.utils.toad_logger import ToadLogger, LogLevel
 frog = ToadLogger("utils.rand_next_day", level=LogLevel.DEBUG)
 
 
-def random_adjective_noun(adjectives: List[str], nouns: List[str]) -> str:
+def random_adjective_noun(lists: List[List[str]], capitalize: bool = True) -> str:
     """Generate a random string by combining a random adjective and a random noun.
 
     Args:
-        adjectives (List[str]): List of adjectives.
-        nouns (List[str]): List of nouns.
+        lists (List[List[str]]): List of lists of strings.
+        capitalize (bool): Whether to capitalize the first letter of the string.
+            Defaults to True.
 
     Returns:
-        str: A string that combines a random adjective and a random noun.
+        str: A string that combines one item from each list.
     """
-    random_adj = str(choice(adjectives)).capitalize()
-    random_noun = str(choice(nouns)).capitalize()
-    return f"{random_adj}{random_noun}"
+    output_str = ""
+
+    for lst in lists:
+
+        if not isinstance(lst, list):
+            frog.error("All elements in the input list must be lists.")
+            raise ValueError("Invalid input list.")
+
+        if not lst:
+            frog.error("All lists in the input list must be non-empty.")
+            raise ValueError("Empty input list.")
+
+        next_item = str(choice(lst))
+
+        if capitalize:
+            next_item = next_item.capitalize()
+
+        output_str += next_item
+
+    return output_str
 
 
 # List A: Adjectives
@@ -71,8 +89,6 @@ adjectives = [
     "glib",
     "suave",
     "quaint",
-    "rash",
-    "taut",
 ]
 
 # List B: Nouns
@@ -98,8 +114,6 @@ nouns = [
     "sphinx",
     "pegasus",
     "minotaur",
-    "banshee",
-    "leprechaun",
     "cyclops",
     "griffon",
     "imp",
@@ -110,8 +124,7 @@ nouns = [
     "wraith",
     "goblin",
     "dryad",
-    "selkie",
-    "kitsune",
+    "fox",
     "djinni",
     "valkyrie",
     "golem",
@@ -119,20 +132,9 @@ nouns = [
     "ghoul",
     "elemental",
     "druid",
-    "doppelganger",
-    "sylph",
     "changeling",
     "manticore",
-    "naiad",
-    "wendigo",
     "gargoyle",
-    "wind",
-    "wave",
-    "thunder",
-    "lightning",
-    "earth",
-    "fire",
-    "water",
     "elephant",
     "penguin",
     "octopus",
@@ -189,5 +191,5 @@ nouns = [
 if __name__ == "__main__":
     # Example usage
 
-    for _ in range(5):
-        print(random_adjective_noun(adjectives, nouns))
+    for _ in range(25):
+        print(random_adjective_noun([adjectives, nouns]))
