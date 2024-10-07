@@ -68,13 +68,11 @@ def generate_next_day(
 
 if __name__ == "__main__":
     # Example usage
-    start = "2021-01-02"
-    min_days = 3
-    max_days = 12
+    start = "2024-10-01"
+    min_days = 1
+    max_days = 4
 
-    for _ in range(10):
+    for _ in range(15):
         next_day = generate_next_day(start, min_days, max_days)
-        frog.info(f"Next day: {next_day}")
+        print(next_day)
         start = datetime.strptime(next_day, "%a, %b %d, %Y").strftime("%Y-%m-%d")
-
-    # print(generate_next_day(start, min_days, max_days))
