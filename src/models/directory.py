@@ -4,7 +4,7 @@ from typing import Union, Optional, List
 
 from src.utils.toad_logger import ToadLogger, LogLevel
 
-frog = ToadLogger("models.directory", level=LogLevel.DEBUG)
+frog = ToadLogger("models.directory")
 
 DISALLOWED_CHARS: List[str] = ["<", ">", ":", '"', "/", "\\", "|", "?", "*", "\0"]
 
