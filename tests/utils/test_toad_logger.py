@@ -1,14 +1,14 @@
 import logging
 
-from utils.toad_logger import ToadLogger, LogLevel
+from utils.toad_logger import LogLevel
 
 
-def test_toad_logger_info_message(caplog):
-    logger = ToadLogger("test_logger", level=LogLevel.INFO)
+def test_toad_logger_info_message(mock_toad_logger, caplog):
+    frog = mock_toad_logger("test_logger", level=LogLevel.INFO)
     message = "This is a test info message."
 
-    with caplog.at_level(logging.INFO, logger=logger.name):
-        logger.info(message)
+    with caplog.at_level(logging.INFO, logger=frog.name):
+        frog.info(message)
 
     # Assert that the message was logged
     assert message in caplog.text
@@ -18,4 +18,4 @@ def test_toad_logger_info_message(caplog):
     record = caplog.records[0]
     assert record.levelname == "INFO"
     assert record.message == message
-    assert record.name == logger.name
+    assert record.name == frog.name
