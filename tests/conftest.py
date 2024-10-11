@@ -1,11 +1,10 @@
-from pathlib import Path
-from unittest.mock import Mock
-
 import pytest
 
-from src.models.directory import Directory
+from utils.toad_logger import ToadLogger
 
 
 @pytest.fixture
-def mock_directory():
-    return Mock(spec=Directory, path=Path("/mock/directory"))
+def mock_toad_logger():
+    def _mock_frog(name, level):
+        return ToadLogger(name, level=level)
+    return _mock_frog
