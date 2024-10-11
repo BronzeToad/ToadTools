@@ -2,7 +2,7 @@ import shutil
 from pathlib import Path
 from typing import Union, Optional, List
 
-from src.utils.toad_logger import ToadLogger, LogLevel
+from src.utils.toad_logger import ToadLogger
 
 frog = ToadLogger("models.directory")
 
@@ -12,9 +12,10 @@ DISALLOWED_CHARS: List[str] = ["<", ">", ":", '"', "/", "\\", "|", "?", "*", "\0
 class DirectoryError(Exception):
     """Custom exception for Directory-related errors."""
 
-    def __init__(self, message, *args):
+    def __init__(self, message, logger: Optional[ToadLogger] = None, *args):
+        self.logger = logger or ToadLogger(message)
+        self.logger.critical(f"Directory-related error occurred: {message}")
         super().__init__(message, *args)
-        frog.critical(f"Directory-related error occurred: {message}")
 
 
 class Directory:
@@ -164,11 +165,13 @@ class Directory:
         v = value.strip() if value else value
         if v in self.disallowed_chars:
             frog.error(f"Replacement character '{v}' is not valid.")
+            self.name = self.name.replace(v, "")
             v = None
         elif v and len(v) > 1:
             frog.error(
                 f"Replacement character '{v}' is too long. Must be a single character."
             )
+            self.name = self.name.replace(v, "")
             v = None
 
         self._replacement_char = v
@@ -180,11 +183,12 @@ class Directory:
         Returns:
             Path: The full path to the directory.
         """
-        if self.name == self.parent.name:
+        _parent = Path(self.parent).resolve()
+        if self.name == _parent.name:
             frog.debug(f"Directory name '{self.name}' already included in parent path.")
-            return self.parent
+            return _parent
         else:
-            return self.parent / self.name
+            return _parent / self.name
 
     @property
     def exists(self) -> bool:
@@ -193,6 +197,7 @@ class Directory:
         Returns:
             bool: True if the directory exists, False otherwise.
         """
+        print(f"Checking if {self.path} exists...")
         return self.path.is_dir()
 
     @staticmethod
