@@ -1,13 +1,50 @@
 from random import choice
-from typing import List
+from typing import List, Optional
 
 from src.utils.toad_logger import ToadLogger, LogLevel
 
 frog = ToadLogger("utils.rand_next_day", level=LogLevel.DEBUG)
 
 
-def random_adjective_noun(lists: List[List[str]], capitalize: bool = True) -> str:
-    """Generate a random string by combining a random adjective and a random noun.
+def random_strings_from_lists_multiple(
+        lists: List[List[str]],
+        num: int,
+        capitalize: bool = True,
+        skip_items: Optional[List[str]] = None,
+) -> List[str]:
+    """Generate a list of random strings by combining strings from input lists.
+
+    Args:
+        lists (List[List[str]]): List of lists of strings.
+        num (int): The number of strings to generate.
+        capitalize (bool): Whether to capitalize the first letter of the string.
+            Defaults to True.
+        skip_items (Optional[List[str]]): A list of strings to skip. Defaults to None.
+
+    Returns:
+        List[str]: A list of strings that combines one item from each list.
+    """
+    skip_items = [item.lower() for item in (skip_items or [])]
+    result = []
+    loop_guard = 0
+
+    while len(result) < num and loop_guard < 1000:
+        new_item = random_strings_from_lists(lists, capitalize)
+        new_item_lower = new_item.lower()
+
+        if new_item_lower not in skip_items and new_item_lower not in [item.lower() for item in
+                                                                       result]:
+            result.append(new_item)
+
+        loop_guard += 1
+
+    return result
+
+def random_strings_from_lists(
+        lists: List[List[str]],
+        capitalize: bool = True,
+) -> str:
+    """Generate a random string by combining strings from input lists.
 
     Args:
         lists (List[List[str]]): List of lists of strings.
@@ -17,7 +54,7 @@ def random_adjective_noun(lists: List[List[str]], capitalize: bool = True) -> st
     Returns:
         str: A string that combines one item from each list.
     """
-    output_str = ""
+    combine = []
 
     for lst in lists:
 
@@ -29,167 +66,62 @@ def random_adjective_noun(lists: List[List[str]], capitalize: bool = True) -> st
             frog.error("All lists in the input list must be non-empty.")
             raise ValueError("Empty input list.")
 
-        next_item = str(choice(lst))
+        combine.append(str(choice(lst)))
 
-        if capitalize:
-            next_item = next_item.capitalize()
+    if capitalize:
+        return "".join([x.capitalize() for x in combine])
+    else:
+        return "".join([x.lower() for x in combine])
 
-        output_str += next_item
-
-    return output_str
 
 
 # List A: Adjectives
 adjectives = [
-    "brave",
-    "sly",
-    "witty",
-    "calm",
-    "fierce",
-    "gentle",
-    "wise",
-    "bold",
-    "shy",
-    "clever",
-    "swift",
-    "proud",
-    "kind",
-    "stern",
-    "merry",
-    "crafty",
-    "loyal",
-    "grumpy",
-    "sleek",
-    "humble",
-    "jolly",
-    "quirky",
-    "nimble",
-    "eager",
-    "solemn",
-    "keen",
-    "deft",
-    "spry",
-    "brash",
-    "coy",
-    "plucky",
-    "meek",
-    "wry",
-    "prim",
-    "brisk",
-    "burly",
-    "droll",
-    "lithe",
-    "zesty",
-    "sage",
-    "posh",
-    "blunt",
-    "snug",
-    "wily",
-    "terse",
-    "glib",
-    "suave",
-    "quaint",
+    "crimson",
+    "amber",
+    "scarlet",
+    "cobalt",
+    "charcoal",
+    "ivory",
+    "jade",
+    "brass",
+    "emerald",
+    "garnet",
+    "moss",
+    "ruby",
+    "sapphire",
+    "steel",
+    "amethyst",
+    "copper",
 ]
 
 # List B: Nouns
 nouns = [
-    "elf",
-    "dragon",
     "wizard",
-    "fairy",
-    "troll",
-    "mermaid",
-    "unicorn",
-    "gnome",
     "giant",
     "phoenix",
-    "centaur",
     "werewolf",
-    "vampire",
-    "siren",
-    "gorgon",
-    "basilisk",
-    "chimera",
     "kraken",
-    "sphinx",
-    "pegasus",
-    "minotaur",
-    "cyclops",
-    "griffon",
-    "imp",
-    "ogre",
-    "harpy",
-    "nymph",
-    "satyr",
-    "wraith",
-    "goblin",
-    "dryad",
     "fox",
-    "djinni",
-    "valkyrie",
     "golem",
-    "hydra",
-    "ghoul",
-    "elemental",
-    "druid",
-    "changeling",
-    "manticore",
-    "gargoyle",
-    "elephant",
-    "penguin",
     "octopus",
-    "chimpanzee",
-    "dolphin",
-    "kangaroo",
-    "platypus",
-    "raccoon",
-    "lemur",
-    "koala",
-    "sloth",
-    "panda",
-    "giraffe",
-    "ostrich",
-    "flamingo",
-    "wombat",
-    "hedgehog",
-    "orangutan",
-    "gorilla",
-    "leopard",
-    "jaguar",
-    "lynx",
-    "squirrel",
-    "beaver",
-    "otter",
-    "walrus",
-    "seal",
-    "pelican",
-    "toucan",
-    "macaw",
-    "cockatoo",
-    "chameleon",
-    "iguana",
-    "gecko",
-    "armadillo",
-    "anteater",
-    "porcupine",
-    "badger",
-    "meerkat",
-    "mongoose",
-    "weasel",
-    "tapir",
-    "capybara",
-    "opossum",
-    "pangolin",
-    "aardvark",
-    "okapi",
-    "ibex",
-    "gazelle",
-    "bison",
 ]
 
 
 if __name__ == "__main__":
     # Example usage
 
-    for _ in range(25):
-        print(random_adjective_noun([adjectives, nouns]))
+    skip_items = [
+        "MossWizard", "IvoryFox", "MossKraken"
+    ]
+
+    combined_names = random_strings_from_lists_multiple(
+        lists=[adjectives, nouns],
+        num=10,
+        skip_items=skip_items
+    )
+
+    for name in combined_names:
+        print(f"{name} - {name.lower()}")
+
+
