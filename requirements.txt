@@ -4,3 +4,4 @@ pandas~=2.2.2
 pytest~=8.3.2
 PyYAML~=6.0.2
 pydantic~=2.8.2
+psaw~=0.1.0
