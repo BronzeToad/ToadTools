@@ -12,7 +12,7 @@ DISALLOWED_CHARS: List[str] = ["<", ">", ":", '"', "/", "\\", "|", "?", "*", "\0
 class DirectoryError(Exception):
     """Custom exception for Directory-related errors."""
 
-    def __init__(self, message, logger: Optional[ToadLogger] = None, *args):
+    def __init__(self, message: str, logger: Optional[ToadLogger] = None, *args):
         self.logger = logger or ToadLogger(message)
         self.logger.critical(f"Directory-related error occurred: {message}")
         super().__init__(message, *args)

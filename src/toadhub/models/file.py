@@ -2,8 +2,8 @@ import shutil
 from pathlib import Path
 from typing import Optional, List
 
-from src.models.directory import Directory
-from src.utils.toad_logger import ToadLogger, LogLevel
+from toadhub.models.directory import Directory
+from src.utils.toad_logger import ToadLogger
 
 frog = ToadLogger("models.file")
 
@@ -13,9 +13,10 @@ DISALLOWED_CHARS: List[str] = ["<", ">", ":", '"', "/", "\\", "|", "?", "*", "\0
 class FileError(Exception):
     """Custom exception for File-related errors."""
 
-    def __init__(self, message, *args):
+    def __init__(self, message, logger: Optional[ToadLogger] = None, *args):
+        self.logger = logger or ToadLogger(message)
+        self.logger.critical(f"File-related error occurred: {message}")
         super().__init__(message, *args)
-        frog.critical(f"File-related error occurred: {message}")
 
 
 class File:

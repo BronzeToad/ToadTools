@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
 
-from src.models.directory import Directory
+from toadhub.models import Directory
 from src.utils.toad_logger import ToadLogger, LogLevel
 
 frog = ToadLogger("toadhub.dirmap", level=LogLevel.DEBUG)
