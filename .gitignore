@@ -3,7 +3,7 @@
 _sandbox/
 .DS_Store
 
-*reddit/config.yaml
+src/reddit/config.yaml
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
